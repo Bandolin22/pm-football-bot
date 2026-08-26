@@ -35,6 +35,8 @@ def hydrate_env() -> None:
             value = secrets[key]
         except Exception:
             continue
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            value = str(value)
         if isinstance(value, str) and value.strip() and key not in os.environ:
             os.environ[key] = value.strip()
 

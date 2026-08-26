@@ -42,8 +42,8 @@ st.title("Upcoming board")
 st.caption(
     "Next Polymarket 1X2 markets for EPL, LaLiga, Ligue 1, Serie A, Bundesliga, and UCL. "
     "Home / Draw / Away are live Yes mids. Gold rows are your watchlist clubs. "
-    "Telegram pings those clubs 1 hour before kickoff when the cloud watcher "
-    "or `python -m pm_football_bot.notify --loop` is running. "
+    "Telegram pings those clubs 1 hour before kickoff via GitHub Actions "
+    "(tokens live in GitHub secrets, not in a committed .env). "
     "UCL is listed here even though harvest keeps it off. This page never places orders."
 )
 st.caption("Watchlist: " + " · ".join(WATCH_QUERIES))

@@ -119,10 +119,12 @@ def test_watchlist_matches_nicknames_and_typos():
     assert involves_watch_club(title="Juventus FC vs. Parma", home_team="Juventus FC")
     assert involves_watch_club(title="Arsenal FC vs. Chelsea FC", home_team="Arsenal FC", away_team="Chelsea FC")
     assert involves_watch_club(title="Liverpool FC vs. Bournemouth", home_team="Liverpool FC")
+    assert involves_watch_club(title="Paris Saint-Germain FC vs. Toulouse", home_team="Paris Saint-Germain FC")
+    assert involves_watch_club(title="PSG vs. Lens", home_team="PSG")
 
 
 def test_watchlist_does_not_cross_match_other_clubs():
     assert not involves_watch_club(title="Athletic Club vs. Elche CF", home_team="Athletic Club", away_team="Elche CF")
     assert not involves_watch_club(title="Bayer 04 Leverkusen vs. Mainz 05", home_team="Bayer 04 Leverkusen")
-    assert not involves_watch_club(title="Getafe CF vs. Valencia CF", home_team="Getafe CF", away_team="Valencia CF")
+    assert not involves_watch_club(title="Paris FC vs. Nantes", home_team="Paris FC", away_team="Nantes")
     assert from_fixture(_fixture(title="Getafe CF vs. Valencia CF", slug="lal-get-val"), "LaLiga").watch is False

@@ -96,9 +96,18 @@ Fill `.env` with the Polymarket wallet private key and CLOB API creds. Keep `dry
 
 The harvest desk and Upcoming board are a Streamlit app (`app.py`). Telegram alerts stay on GitHub Actions — this site does not send them.
 
-Deploy from the GitHub repo at [share.streamlit.io](https://share.streamlit.io): **Create app** → `Bandolin22/pm-football-bot` → branch `main` → file `app.py`. Optional Streamlit secret: `FOOTBALL_DATA_TOKEN` (KEEP briefings).
+Deploy from the GitHub repo at [share.streamlit.io](https://share.streamlit.io): **Create app** → `Bandolin22/pm-football-bot` → branch `main` → file `app.py`.
 
-Render/Railway can also host it (`Procfile` / `render.yaml`). Set `FOOTBALL_DATA_TOKEN` there if you want scout briefings.
+**Do not put secrets in a committed `.env`.** Auto-deploy never copies `.env`.
+
+- **Telegram pings** (1 hour before watchlist kickoff): already set as GitHub Actions secrets `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`. The Streamlit site does not need them.
+- **KEEP briefings** on the website: in Streamlit, open the app menu → **Settings** → **Secrets** and paste:
+
+```toml
+FOOTBALL_DATA_TOKEN = "your-football-data-token"
+```
+
+Then reboot the app. Locally, keep using `.env` on this PC.
 
 ## 24/7 Telegram watchlist (cloud)
 

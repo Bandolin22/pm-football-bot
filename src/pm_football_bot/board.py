@@ -30,6 +30,7 @@ WATCH_QUERIES = (
     "Atlanta vergamou",
     "bayerun munchen",
     "vorusia dortmound",
+    "PSG",
 )
 
 _WATCH_ALIASES = {
@@ -56,6 +57,9 @@ _WATCH_ALIASES = {
     "bayern munich": "bayern munchen",
     "vorusia dortmound": "borussia dortmund",
     "dortmund": "borussia dortmund",
+    "psg": "paris saint germain",
+    "paris sg": "paris saint germain",
+    "paris saint germain": "paris saint germain",
 }
 
 
@@ -206,6 +210,9 @@ def _watch_hit(watch: str, candidate: str) -> bool:
         return True
     if len(watch) >= 6 and watch in candidate:
         return True
+    # Fuzzy for typos, but not "Paris FC" vs "Paris Saint-Germain".
+    if abs(len(watch) - len(candidate)) > 6:
+        return False
     return _name_score(watch, candidate) >= 0.84
 
 
