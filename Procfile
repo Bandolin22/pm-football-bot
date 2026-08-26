@@ -1,1 +1,1 @@
-web: python -m pm_football_bot.runtime
+web: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true

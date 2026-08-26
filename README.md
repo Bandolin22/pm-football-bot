@@ -92,13 +92,17 @@ python -m pm_football_bot --live
 
 Fill `.env` with the Polymarket wallet private key and CLOB API creds. Keep `dry_run: true` in YAML until you pass `--live`.
 
+## Website (online desk)
+
+The harvest desk and Upcoming board are a Streamlit app (`app.py`). Telegram alerts stay on GitHub Actions — this site does not send them.
+
+Deploy from the GitHub repo at [share.streamlit.io](https://share.streamlit.io): **Create app** → `Bandolin22/pm-football-bot` → branch `main` → file `app.py`. Optional Streamlit secret: `FOOTBALL_DATA_TOKEN` (KEEP briefings).
+
+Render/Railway can also host it (`Procfile` / `render.yaml`). Set `FOOTBALL_DATA_TOKEN` there if you want scout briefings.
+
 ## 24/7 Telegram watchlist (cloud)
 
-The Streamlit desk does **not** send Telegram. A watcher must keep running.
-
-**Free path: GitHub Actions** checks every 10 minutes. That still catches the 1-hour pre-kickoff window. Put `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in the repo **Actions secrets** (never commit `.env`). Run **Watchlist Telegram alert** once with *Run workflow* so you know secrets work.
-
-**Always-on path (1-minute loop):** deploy the Dockerfile to [Render](https://render.com) or [Railway](https://railway.app). Set the same two env vars. Render's free web service sleeps — use a paid always-on instance or GitHub Actions.
+The Streamlit desk does **not** send Telegram. GitHub Actions checks every 10 minutes. That still catches the 1-hour pre-kickoff window. `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are already in the repo Actions secrets.
 
 ```powershell
 # local smoke test

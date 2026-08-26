@@ -10,7 +10,7 @@ from typing import Any
 
 import requests
 
-from pm_football_bot.config import ROOT
+from pm_football_bot.config import hydrate_env
 
 FOOTBALL_DATA_HOST = "https://api.football-data.org/v4"
 COMPETITION_CODE = {
@@ -86,7 +86,7 @@ class Briefing:
 
 
 def football_data_token() -> str | None:
-    _load_dotenv()
+    hydrate_env()
     token = (os.environ.get("FOOTBALL_DATA_TOKEN") or os.environ.get("FOOTBALL_DATA_API_KEY") or "").strip()
     return token or None
 
@@ -235,21 +235,6 @@ def veto_notes(
     if fav.rest_days is not None and dog.rest_days is not None and fav.rest_days <= 2 and dog.rest_days >= 6:
         notes.append("Caution: favorite is on a short rest vs a fresher dog.")
     return tuple(notes)
-
-
-def _load_dotenv() -> None:
-    path = ROOT / ".env"
-    if not path.exists():
-        return
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        value = value.strip().strip('"').strip("'")
-        if key and key not in os.environ:
-            os.environ[key] = value
 
 
 def _cached(key: str, loader):

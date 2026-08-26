@@ -10,7 +10,7 @@ from pathlib import Path
 import requests
 
 from pm_football_bot.board import UpcomingMatch, list_upcoming
-from pm_football_bot.config import ROOT, load_settings
+from pm_football_bot.config import ROOT, hydrate_env, load_settings
 from pm_football_bot.gamma import GammaClient
 from pm_football_bot.models import utcnow
 
@@ -27,22 +27,8 @@ def sent_path() -> Path:
     return ROOT / "data" / "notify" / "sent.json"
 
 
-def load_dotenv() -> None:
-    path = ROOT / ".env"
-    if not path.exists():
-        return
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key, value = key.strip(), value.strip().strip('"').strip("'")
-        if key and key not in os.environ:
-            os.environ[key] = value
-
-
 def telegram_creds() -> tuple[str, str] | None:
-    load_dotenv()
+    hydrate_env()
     token = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
     chat_id = (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
     if not token or not chat_id:

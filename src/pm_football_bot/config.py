@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -8,6 +9,34 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = ROOT / "config"
+
+
+def hydrate_env() -> None:
+    """Load .env and Streamlit Cloud secrets into os.environ (existing env wins)."""
+    path = ROOT / ".env"
+    if path.exists():
+        for raw in path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key, value = key.strip(), value.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = value
+    try:
+        import streamlit as st
+
+        secrets = st.secrets
+        keys = list(secrets.keys())
+    except Exception:
+        return
+    for key in keys:
+        try:
+            value = secrets[key]
+        except Exception:
+            continue
+        if isinstance(value, str) and value.strip() and key not in os.environ:
+            os.environ[key] = value.strip()
 
 
 def _load_yaml(name: str) -> dict[str, Any]:
@@ -72,6 +101,7 @@ class Settings:
 
 
 def load_settings() -> Settings:
+    hydrate_env()
     raw = _load_yaml("settings.yaml")
     leagues_raw = _load_yaml("leagues.yaml")
     strategy = _load_yaml("strategy.yaml")

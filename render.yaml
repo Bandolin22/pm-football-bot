@@ -1,13 +1,12 @@
 services:
   - type: web
-    name: pm-watch-alert
-    runtime: docker
+    name: pm-football-desk
+    runtime: python
     plan: free
-    healthCheckPath: /
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
     envVars:
-      - key: TELEGRAM_BOT_TOKEN
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: FOOTBALL_DATA_TOKEN
         sync: false
-      - key: TELEGRAM_CHAT_ID
-        sync: false
-      - key: ANNOUNCE_START
-        value: "1"

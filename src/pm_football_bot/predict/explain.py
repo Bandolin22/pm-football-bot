@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from pm_football_bot.config import ROOT
+from pm_football_bot.config import hydrate_env
 
 _SYSTEM = (
     "You explain a football 1X2 probability stack. "
@@ -78,20 +78,6 @@ def _claude(forecast) -> str | None:
 
 
 def _anthropic_key() -> str | None:
-    _load_dotenv()
+    hydrate_env()
     key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
     return key or None
-
-
-def _load_dotenv() -> None:
-    path = ROOT / ".env"
-    if not path.exists():
-        return
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        name, value = line.split("=", 1)
-        name, value = name.strip(), value.strip().strip('"').strip("'")
-        if name and name not in os.environ:
-            os.environ[name] = value
