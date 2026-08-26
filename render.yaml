@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pm-watch-alert
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: ANNOUNCE_START
+        value: "1"

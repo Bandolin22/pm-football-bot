@@ -1,0 +1,38 @@
+# Gamma /sports identifiers. Filter fixtures by series_id.
+leagues:
+  epl:
+    enabled: true
+    name: Premier League
+    sport: epl
+    series_id: "10188"
+    primary_tag_id: 306
+  laliga:
+    enabled: true
+    name: LaLiga
+    sport: lal
+    series_id: "10193"
+    primary_tag_id: 780
+  ligue1:
+    enabled: true
+    name: Ligue 1
+    sport: fl1
+    series_id: "10195"
+    primary_tag_id: 102070
+  seriea:
+    enabled: true
+    name: Serie A
+    sport: sea
+    series_id: "10203"
+    primary_tag_id: 100618
+  bundesliga:
+    enabled: true
+    name: Bundesliga
+    sport: bun
+    series_id: "10194"
+    primary_tag_id: 1494
+  ucl:
+    enabled: false
+    name: UEFA Champions League
+    sport: ucl
+    series_id: "10204"
+    primary_tag_id: 1234

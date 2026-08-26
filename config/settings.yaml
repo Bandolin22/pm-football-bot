@@ -1,0 +1,16 @@
+dry_run: true
+poll_seconds: 300
+
+gamma_host: https://gamma-api.polymarket.com
+clob_host: https://clob.polymarket.com
+
+# $400 starter bankroll. Do not try to warehouse every line.
+bankroll_usd: 400
+ticket_usd: 18
+min_shares: 5
+max_tickets_per_fixture: 3
+max_open_usd: 240
+
+# Skip games that already kicked off, and skip far-away listings.
+max_days_to_kickoff: 14
+min_hours_to_kickoff: 4

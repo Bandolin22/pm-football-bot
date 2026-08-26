@@ -1,0 +1,37 @@
+# Harvest template, not a 351-line Swisstony clone.
+# Size only mismatch fixtures, then buy high-cent tails on liquid books.
+#
+# Strategy (EPL / LaLiga / Ligue 1 / Serie A / Bundesliga):
+#   1. Filter: dog win price <= max_dog_yes AND favorite >= min_favorite_yes
+#   2. Buy three liquid tickets in price_band if spread <= max_spread
+#   3. Skip: even games, 97c+ illiquid whales, exact-score spray, sub-80c opinions
+
+mismatch:
+  # Dog win implied probability at or below this → treat as mismatch.
+  max_dog_yes: 0.12
+  min_favorite_yes: 0.70
+
+price_band:
+  min: 0.85
+  max: 0.97
+
+liquidity:
+  # Skip the 98c whales with 1c/12c books (Coventry team Under 2.5 style).
+  max_spread: 0.03
+  min_best_bid: 0.84
+
+rules:
+  - id: fade_dog
+    enabled: true
+    kind: moneyline_dog
+    side: "no"
+  - id: over_0_5
+    enabled: true
+    kind: totals
+    line: 0.5
+    side: over
+  - id: under_5_5
+    enabled: true
+    kind: totals
+    line: 5.5
+    side: under

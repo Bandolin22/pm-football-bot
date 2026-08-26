@@ -1,0 +1,53 @@
+name: Watchlist Telegram alert
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: watch-alert
+  cancel-in-progress: false
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Keep notify state directory
+        run: mkdir -p data/notify
+
+      - name: Restore sent state
+        uses: actions/cache/restore@v4
+        with:
+          path: data/notify/sent.json
+          key: notify-sent-${{ github.run_id }}
+          restore-keys: |
+            notify-sent-
+
+      - name: Install
+        run: pip install pyyaml requests
+
+      - name: Check watchlist kickoffs
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH: src
+        run: python -m pm_football_bot.notify
+
+      - name: Ensure state file exists
+        if: always()
+        run: test -f data/notify/sent.json || echo '{}' > data/notify/sent.json
+
+      - name: Save sent state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/notify/sent.json
+          key: notify-sent-${{ github.run_id }}

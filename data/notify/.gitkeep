@@ -1,0 +1,1 @@
+# keeps the notify state directory in git; sent.json stays gitignored
