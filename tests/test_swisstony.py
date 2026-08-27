@@ -44,6 +44,9 @@ def test_five_euro_leagues_enabled():
     assert set(enabled) == {"epl", "laliga", "ligue1", "seriea", "bundesliga"}
     board = {lg.key for lg in load_settings().leagues}
     assert {"ucl", "uel", "efl", "elc", "efa", "dfb", "itc", "cdr"}.issubset(board)
+    by_key = {lg.key: lg for lg in load_settings().leagues}
+    assert by_key["efl"].series_id == "10329"
+    assert by_key["efa"].series_id == "10314"
     assert enabled["ligue1"].series_id == "10195"
     assert enabled["seriea"].series_id == "10203"
     assert enabled["bundesliga"].series_id == "10194"

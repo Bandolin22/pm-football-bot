@@ -54,7 +54,8 @@ leagues:
     enabled: false
     name: EFL Cup
     sport: efl
-    series_id: "10230"
+    # Event series is efl-cup (10329). sport.series 10230 is stale and lists no live games.
+    series_id: "10329"
     primary_tag_id: 102595
   elc:
     enabled: false
@@ -66,7 +67,7 @@ leagues:
     enabled: false
     name: FA Cup
     sport: efa
-    series_id: "10307"
+    series_id: "10314"
     primary_tag_id: 102594
   cdr:
     enabled: false
