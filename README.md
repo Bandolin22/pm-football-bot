@@ -120,7 +120,8 @@ The Streamlit desk does **not** send Telegram. GitHub Actions checks every 10 mi
 
 ## Tune without rewriting code
 
-- Add/remove a competition → `config/leagues.yaml`
+- Add/remove a competition → `config/leagues.yaml` (`enabled: true` = harvest; `false` = Upcoming + Telegram only)
+- Cups (EFL, FA Cup, UCL, Europa, DFB-Pokal, …) are on the Upcoming board even when harvest is off
 - Play closer games → raise `mismatch.max_dog_yes`
 - Take less risk → lower `ticket_usd` or `max_open_usd`
 - Drop a template (for example skip Over 0.5) → `enabled: false` on that rule

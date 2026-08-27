@@ -127,4 +127,9 @@ def test_watchlist_does_not_cross_match_other_clubs():
     assert not involves_watch_club(title="Athletic Club vs. Elche CF", home_team="Athletic Club", away_team="Elche CF")
     assert not involves_watch_club(title="Bayer 04 Leverkusen vs. Mainz 05", home_team="Bayer 04 Leverkusen")
     assert not involves_watch_club(title="Paris FC vs. Nantes", home_team="Paris FC", away_team="Nantes")
+    assert not involves_watch_club(
+        title="Real Sociedad de Fútbol vs. RCD Espanyol de Barcelona",
+        home_team="Real Sociedad de Fútbol",
+        away_team="RCD Espanyol de Barcelona",
+    )
     assert from_fixture(_fixture(title="Getafe CF vs. Valencia CF", slug="lal-get-val"), "LaLiga").watch is False

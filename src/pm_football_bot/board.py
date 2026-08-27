@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -11,7 +12,30 @@ from pm_football_bot.scout import _name_score, fold_name, split_fixture
 POLYMARKET_EVENT = "https://polymarket.com/event/{slug}"
 DEFAULT_LIMIT = 20
 FAR_FUTURE = datetime.max.replace(tzinfo=timezone.utc)
-LEAGUE_ORDER = ("epl", "laliga", "ligue1", "seriea", "bundesliga", "ucl")
+LEAGUE_ORDER = (
+    "epl",
+    "laliga",
+    "ligue1",
+    "seriea",
+    "bundesliga",
+    "ucl",
+    "uel",
+    "col",
+    "efl",
+    "elc",
+    "efa",
+    "cdr",
+    "dfb",
+    "itc",
+    "cde",
+    "ssc",
+    "isc",
+    "gsc",
+    "frtc",
+    "usc",
+    "cwc",
+    "ecs",
+)
 
 # User watchlist, including the nicknames / spellings they typed.
 WATCH_QUERIES = (
@@ -60,6 +84,11 @@ _WATCH_ALIASES = {
     "psg": "paris saint germain",
     "paris sg": "paris saint germain",
     "paris saint germain": "paris saint germain",
+}
+
+# Names that contain a watch token but are a different club.
+_WATCH_NEGATIVES = {
+    "barcelona": ("espanyol",),
 }
 
 
@@ -151,16 +180,24 @@ def list_upcoming(
 ) -> list[UpcomingMatch]:
     """Next moneyline fixtures per league, including UCL even when harvest is off."""
     now = now or utcnow()
-    rows: list[UpcomingMatch] = []
-    for league in _ordered(leagues):
-        if league_keys is not None and league.key not in league_keys:
-            continue
-        if not include_disabled and not league.enabled:
-            continue
+    wanted = [
+        league
+        for league in _ordered(leagues)
+        if (league_keys is None or league.key in league_keys)
+        and (include_disabled or league.enabled)
+    ]
+
+    def _load(league: League) -> list[UpcomingMatch]:
         events = client.list_moneyline_events(league)
         fixtures = [client.parse_moneyline(league, event) for event in events]
         picked = take_upcoming(fixtures, now, per_league)
-        rows.extend(from_fixture(item, league.name) for item in picked)
+        return [from_fixture(item, league.name) for item in picked]
+
+    rows: list[UpcomingMatch] = []
+    workers = min(8, max(1, len(wanted)))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for chunk in pool.map(_load, wanted):
+            rows.extend(chunk)
     rows.sort(key=lambda row: (row.kickoff or FAR_FUTURE, _league_rank(row.league), row.title))
     return rows
 
@@ -192,10 +229,15 @@ def _watch_fold(name: str) -> str:
 
 def _is_watch_name(name: str) -> bool:
     candidate = _watch_fold(name)
+    folded = fold_name(name)
     if not candidate:
         return False
     for query in WATCH_QUERIES:
         watch = _watch_fold(query)
+        blocked = _WATCH_NEGATIVES.get(watch, ())
+        haystack = f"{folded} {candidate}"
+        if any(bit in haystack.split() for bit in blocked):
+            continue
         if _watch_hit(watch, candidate):
             return True
     return False

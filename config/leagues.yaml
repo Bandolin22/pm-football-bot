@@ -1,4 +1,6 @@
 # Gamma /sports identifiers. Filter fixtures by series_id.
+# enabled: true  → harvest scan (KEEP tickets)
+# enabled: false → Upcoming board + Telegram watchlist only
 leagues:
   epl:
     enabled: true
@@ -36,3 +38,99 @@ leagues:
     sport: ucl
     series_id: "10204"
     primary_tag_id: 1234
+  uel:
+    enabled: false
+    name: UEFA Europa League
+    sport: uel
+    series_id: "10209"
+    primary_tag_id: 101787
+  col:
+    enabled: false
+    name: UEFA Conference League
+    sport: col
+    series_id: "10437"
+    primary_tag_id: 102763
+  efl:
+    enabled: false
+    name: EFL Cup
+    sport: efl
+    series_id: "10230"
+    primary_tag_id: 102595
+  elc:
+    enabled: false
+    name: EFL Championship
+    sport: elc
+    series_id: "10355"
+    primary_tag_id: 102643
+  efa:
+    enabled: false
+    name: FA Cup
+    sport: efa
+    series_id: "10307"
+    primary_tag_id: 102594
+  cdr:
+    enabled: false
+    name: Copa del Rey
+    sport: cdr
+    series_id: "10316"
+    primary_tag_id: 101783
+  dfb:
+    enabled: false
+    name: DFB-Pokal
+    sport: dfb
+    series_id: "10317"
+    primary_tag_id: 102154
+  itc:
+    enabled: false
+    name: Coppa Italia
+    sport: itc
+    series_id: "10287"
+    primary_tag_id: 102008
+  cde:
+    enabled: false
+    name: Coupe de France
+    sport: cde
+    series_id: "10315"
+    primary_tag_id: 102604
+  ssc:
+    enabled: false
+    name: Supercopa de España
+    sport: ssc
+    series_id: "10863"
+    primary_tag_id: 103075
+  isc:
+    enabled: false
+    name: Supercoppa Italiana
+    sport: isc
+    series_id: "12582"
+    primary_tag_id: 105947
+  gsc:
+    enabled: false
+    name: German Super Cup
+    sport: gsc
+    series_id: "12683"
+    primary_tag_id: 106112
+  frtc:
+    enabled: false
+    name: Trophée des Champions
+    sport: frtc
+    series_id: "12359"
+    primary_tag_id: 105733
+  usc:
+    enabled: false
+    name: UEFA Super Cup
+    sport: usc
+    series_id: "12224"
+    primary_tag_id: 105616
+  cwc:
+    enabled: false
+    name: FIFA Club World Cup
+    sport: cwc
+    series_id: "11461"
+    primary_tag_id: 102192
+  ecs:
+    enabled: false
+    name: Community Shield
+    sport: ecs
+    series_id: "12358"
+    primary_tag_id: 105732

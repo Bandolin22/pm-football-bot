@@ -66,6 +66,7 @@ NOISE_SLUG_BITS = (
     "-halftime-result",
     "-second-half-result",
     "-total-corners",
+    "-first-to-score",
     "-player-props",
 )
 

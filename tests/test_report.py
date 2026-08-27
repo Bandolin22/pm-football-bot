@@ -17,6 +17,12 @@ def test_drops_first_team_to_score_events():
     assert not is_primary_moneyline_event(
         {"title": "Elche CF vs. FC Barcelona - Player Props", "slug": "lal-elc-bar-2026-08-23-player-props"}
     )
+    assert not is_primary_moneyline_event(
+        {
+            "title": "Hamburg-Eimsbütteler BC vs. BV Borussia 09 Dortmund - First Team to Score",
+            "slug": "dfb-heb-bvb-2026-09-01-first-to-score",
+        }
+    )
 
 
 def test_reviews_first_scorer_as_skip():

@@ -20,6 +20,11 @@ COMPETITION_CODE = {
     "seriea": "SA",
     "ligue1": "FL1",
     "ucl": "CL",
+    "uel": "EL",
+    "elc": "ELC",
+    "efa": "FAC",
+    "dfb": "DFB",
+    "cdr": "CDR",
 }
 
 # football-data.org free: results, table, H2H, rest. Not Opta xG / predicted XI.

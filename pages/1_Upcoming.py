@@ -40,11 +40,13 @@ st.markdown(
 
 st.title("Upcoming board")
 st.caption(
-    "Next Polymarket 1X2 markets for EPL, LaLiga, Ligue 1, Serie A, Bundesliga, and UCL. "
+    "Next Polymarket 1X2 markets for watchlist clubs across domestic leagues, "
+    "EFL / FA Cup, European cups, and national cups — not only EPL and LaLiga. "
     "Home / Draw / Away are live Yes mids. Gold rows are your watchlist clubs. "
     "Telegram pings those clubs 1 hour before kickoff via GitHub Actions "
     "(tokens live in GitHub secrets, not in a committed .env). "
-    "UCL is listed here even though harvest keeps it off. This page never places orders."
+    "Cups are listed here even though harvest KEEP stays on the five league tables. "
+    "This page never places orders."
 )
 st.caption("Watchlist: " + " · ".join(WATCH_QUERIES))
 

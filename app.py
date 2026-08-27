@@ -93,6 +93,22 @@ LEAGUE_LABEL = {
     "seriea": "Serie A",
     "bundesliga": "Bundesliga",
     "ucl": "UCL",
+    "uel": "Europa League",
+    "col": "Conference League",
+    "efl": "EFL Cup",
+    "elc": "Championship",
+    "efa": "FA Cup",
+    "cdr": "Copa del Rey",
+    "dfb": "DFB-Pokal",
+    "itc": "Coppa Italia",
+    "cde": "Coupe de France",
+    "ssc": "Supercopa",
+    "isc": "Supercoppa",
+    "gsc": "German Super Cup",
+    "frtc": "Trophée des Champions",
+    "usc": "UEFA Super Cup",
+    "cwc": "Club World Cup",
+    "ecs": "Community Shield",
 }
 
 
@@ -292,7 +308,7 @@ st.title("Harvest desk")
 st.caption(
     "Your dry-run harvest on EPL, LaLiga, Ligue 1, Serie A, and Bundesliga. "
     "Swisstony’s open book is still mostly EPL / LaLiga / UCL. This page never places orders. "
-    "Open **Upcoming** in the left sidebar for the next 20 1X2 markets per league, including UCL."
+            "Open **Upcoming** in the left sidebar for every watchlist 1X2, including cups (EFL, FA Cup, UCL, Europa, DFB-Pokal)."
 )
 
 with st.expander("How to read this", expanded=False):

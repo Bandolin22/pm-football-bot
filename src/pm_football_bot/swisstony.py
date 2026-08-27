@@ -14,9 +14,36 @@ DATA_API = "https://data-api.polymarket.com"
 PROFILE = f"https://polymarket.com/@swisstony"
 
 _PARENT = re.compile(
-    r"^((?:epl|lal|ucl|fl1|sea|bun)-[a-z0-9]+-[a-z0-9]+-\d{4}-\d{2}-\d{2})",
+    r"^((?:epl|lal|ucl|fl1|sea|bun|efl|elc|efa|uel|col|cdr|dfb|itc|cde|"
+    r"ssc|isc|gsc|frtc|usc|cwc|ecs)-[a-z0-9]+-[a-z0-9]+-\d{4}-\d{2}-\d{2})",
     re.IGNORECASE,
 )
+
+_SLUG_LEAGUE = {
+    "epl": "epl",
+    "lal": "laliga",
+    "laliga": "laliga",
+    "fl1": "ligue1",
+    "sea": "seriea",
+    "bun": "bundesliga",
+    "ucl": "ucl",
+    "uel": "uel",
+    "col": "col",
+    "efl": "efl",
+    "elc": "elc",
+    "efa": "efa",
+    "cdr": "cdr",
+    "dfb": "dfb",
+    "itc": "itc",
+    "cde": "cde",
+    "ssc": "ssc",
+    "isc": "isc",
+    "gsc": "gsc",
+    "frtc": "frtc",
+    "usc": "usc",
+    "cwc": "cwc",
+    "ecs": "ecs",
+}
 
 
 @dataclass(frozen=True)
@@ -49,19 +76,8 @@ def parent_slug(slug: str) -> str:
 
 def league_of(slug: str) -> str | None:
     key = parent_slug(slug)
-    if key.startswith("epl-"):
-        return "epl"
-    if key.startswith("lal-") or key.startswith("laliga-"):
-        return "laliga"
-    if key.startswith("fl1-"):
-        return "ligue1"
-    if key.startswith("sea-"):
-        return "seriea"
-    if key.startswith("bun-"):
-        return "bundesliga"
-    if key.startswith("ucl-"):
-        return "ucl"
-    return None
+    prefix = key.split("-", 1)[0]
+    return _SLUG_LEAGUE.get(prefix)
 
 
 def _lot_from_position(raw: dict[str, Any]) -> SwissLot | None:

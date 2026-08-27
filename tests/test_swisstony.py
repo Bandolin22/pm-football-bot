@@ -29,6 +29,10 @@ def test_parent_slug_strips_side_books():
     assert parent_slug("sea-fro-juv-2026-08-23-more-markets") == "sea-fro-juv-2026-08-23"
     assert parent_slug("bun-bay-stu-2026-08-28-more-markets") == "bun-bay-stu-2026-08-28"
     assert league_of("ucl-fen-lyo-2026-08-18-more-markets") == "ucl"
+    assert league_of("uel-mta-she-2026-07-30") == "uel"
+    assert league_of("dfb-heb-bvb-2026-09-01") == "dfb"
+    assert league_of("elc-wre-bir-2026-08-28") == "elc"
+    assert league_of("efl-mun-grm-2026-09-16") == "efl"
     assert league_of("fl1-psg-ren-2026-08-23") == "ligue1"
     assert league_of("sea-fro-juv-2026-08-23") == "seriea"
     assert league_of("bun-bay-stu-2026-08-28") == "bundesliga"
@@ -38,6 +42,8 @@ def test_parent_slug_strips_side_books():
 def test_five_euro_leagues_enabled():
     enabled = {lg.key: lg for lg in load_settings().leagues if lg.enabled}
     assert set(enabled) == {"epl", "laliga", "ligue1", "seriea", "bundesliga"}
+    board = {lg.key for lg in load_settings().leagues}
+    assert {"ucl", "uel", "efl", "elc", "efa", "dfb", "itc", "cdr"}.issubset(board)
     assert enabled["ligue1"].series_id == "10195"
     assert enabled["seriea"].series_id == "10203"
     assert enabled["bundesliga"].series_id == "10194"
