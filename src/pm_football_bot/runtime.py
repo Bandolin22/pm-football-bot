@@ -62,7 +62,7 @@ def _announce() -> None:
         "Watchlist alerter is online.\n"
         "I will Telegram you ~1 hour before kickoff for Real Madrid, Barca, "
         "Atlético, Arsenal, Liverpool, City, United, Chelsea, Spurs, Inter, "
-        "Milan, Juventus, Atalanta, Bayern, Dortmund, and PSG, with live Polymarket 1X2.",
+        "Milan, Juventus, Atalanta, Napoli, Bayern, Dortmund, and PSG, with live Polymarket 1X2.",
     )
 
 

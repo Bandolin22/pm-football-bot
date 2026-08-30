@@ -55,6 +55,7 @@ WATCH_QUERIES = (
     "bayerun munchen",
     "vorusia dortmound",
     "PSG",
+    "SSC Napoli",
 )
 
 _WATCH_ALIASES = {
@@ -84,6 +85,7 @@ _WATCH_ALIASES = {
     "psg": "paris saint germain",
     "paris sg": "paris saint germain",
     "paris saint germain": "paris saint germain",
+    "ssc napoli": "napoli",
 }
 
 # Names that contain a watch token but are a different club.

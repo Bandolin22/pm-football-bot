@@ -121,6 +121,8 @@ def test_watchlist_matches_nicknames_and_typos():
     assert involves_watch_club(title="Liverpool FC vs. Bournemouth", home_team="Liverpool FC")
     assert involves_watch_club(title="Paris Saint-Germain FC vs. Toulouse", home_team="Paris Saint-Germain FC")
     assert involves_watch_club(title="PSG vs. Lens", home_team="PSG")
+    assert involves_watch_club(title="SSC Napoli vs. Cagliari Calcio", home_team="SSC Napoli")
+    assert involves_watch_club(title="Napoli vs. Inter", home_team="Napoli")
 
 
 def test_watchlist_does_not_cross_match_other_clubs():
