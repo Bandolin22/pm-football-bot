@@ -58,6 +58,7 @@ WATCH_QUERIES = (
     "SSC Napoli",
     "Como 1907",
     "Lazio",
+    "AS Roma",
 )
 
 _WATCH_ALIASES = {
@@ -90,6 +91,7 @@ _WATCH_ALIASES = {
     "ssc napoli": "napoli",
     "como 1907": "como",
     "ss lazio": "lazio",
+    "as roma": "roma",
 }
 
 # Names that contain a watch token but are a different club.
