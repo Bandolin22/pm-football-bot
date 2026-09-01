@@ -308,7 +308,9 @@ st.title("Harvest desk")
 st.caption(
     "Your dry-run harvest on EPL, LaLiga, Ligue 1, Serie A, and Bundesliga. "
     "Swisstony’s open book is still mostly EPL / LaLiga / UCL. This page never places orders. "
-            "Open **Upcoming** in the left sidebar for every watchlist 1X2, including cups (EFL, FA Cup, UCL, Europa, DFB-Pokal)."
+    "Open **Upcoming** in the left sidebar for every watchlist 1X2, including cups "
+    "(EFL, FA Cup, UCL, Europa, DFB-Pokal). Open **My trading** for your "
+    "[@zerobetap](https://polymarket.com/@zerobetap) history and PnL by club and harvest factor."
 )
 
 with st.expander("How to read this", expanded=False):

@@ -99,6 +99,33 @@ _WATCH_NEGATIVES = {
     "barcelona": ("espanyol",),
 }
 
+WATCH_LABELS = {
+    "Real Madrid": "Real Madrid",
+    "Barca": "Barcelona",
+    "Atletic Madrid": "Atlético Madrid",
+    "Arsenal": "Arsenal",
+    "Liverpool": "Liverpool",
+    "Man city": "Manchester City",
+    "man united": "Manchester United",
+    "chelsea": "Chelsea",
+    "Spurs": "Tottenham",
+    "Inter milan": "Inter",
+    "AC milan": "AC Milan",
+    "juventus": "Juventus",
+    "Atlanta vergamou": "Atalanta",
+    "bayerun munchen": "Bayern",
+    "vorusia dortmound": "Dortmund",
+    "PSG": "PSG",
+    "SSC Napoli": "Napoli",
+    "Como 1907": "Como",
+    "Lazio": "Lazio",
+    "AS Roma": "Roma",
+}
+
+
+def watch_display_name(query: str) -> str:
+    return WATCH_LABELS.get(query, query)
+
 
 @dataclass(frozen=True)
 class UpcomingMatch:
@@ -228,6 +255,26 @@ def involves_watch_club(*, title: str = "", home_team: str = "", away_team: str 
     if title:
         candidates.append(title)
     return any(_is_watch_name(item) for item in candidates if item)
+
+
+def matched_watch_club(name: str) -> str | None:
+    """Return the watchlist label that matches this club, if any."""
+    candidate = _watch_fold(name)
+    folded = fold_name(name)
+    if not candidate:
+        return None
+    hits: list[tuple[int, str]] = []
+    for query in WATCH_QUERIES:
+        watch = _watch_fold(query)
+        blocked = _WATCH_NEGATIVES.get(watch, ())
+        haystack = f"{folded} {candidate}"
+        if any(bit in haystack.split() for bit in blocked):
+            continue
+        if _watch_hit(watch, candidate):
+            hits.append((len(watch), query))
+    if not hits:
+        return None
+    return max(hits, key=lambda row: row[0])[1]
 
 
 def _watch_fold(name: str) -> str:
