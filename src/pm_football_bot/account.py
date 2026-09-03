@@ -10,8 +10,12 @@ from typing import Any
 import requests
 
 from pm_football_bot.board import WATCH_QUERIES, matched_watch_club, watch_display_name
+from pm_football_bot.scout import fold_name
 from pm_football_bot.swisstony import DATA_API, league_of, parent_slug
 from pm_football_bot.tape import classify_kind
+
+SPORTS_TAKER_RATE = 0.05
+CRYPTO_TAKER_RATE = 0.07
 
 DEFAULT_USERNAME = "zerobetap"
 DEFAULT_WALLET = "0x0cfeece79f89fbc92d8115edfab11ff6af847290"
@@ -48,6 +52,37 @@ _FOOTBALL_HINT = (
 
 def profile_url(username: str) -> str:
     return f"https://polymarket.com/@{username.lstrip('@')}"
+
+
+def taker_fee_usdc(shares: float, price: float, rate: float = SPORTS_TAKER_RATE) -> float:
+    """Polymarket taker fee: shares × rate × p × (1 − p). Makers pay 0."""
+    p = float(price)
+    if shares <= 0 or p <= 0 or p >= 1:
+        return 0.0
+    return round(float(shares) * rate * p * (1.0 - p), 5)
+
+
+def team_identity(name: str) -> tuple[str, str]:
+    """Canonical key + display label for a parsed club name."""
+    raw = (name or "").strip()
+    if not raw:
+        return "", ""
+    watch = matched_watch_club(raw)
+    if watch:
+        return watch, watch_display_name(watch)
+    return fold_name(raw) or raw, raw
+
+
+def format_teams(lot: AccountLot) -> str:
+    labels: list[str] = []
+    seen: set[str] = set()
+    for name in lot.teams:
+        key, label = team_identity(name)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        labels.append(label)
+    return ", ".join(labels)
 
 
 def classify_factor(title: str, outcome: str, avg_price: float | None = None) -> str:
@@ -125,10 +160,15 @@ class AccountLot:
     watch_clubs: tuple[str, ...]
     soccer: bool
     timestamp: datetime | None = None
+    fee_usd: float = 0.0
 
     @property
     def cents(self) -> float:
         return round(self.avg_price * 100, 1)
+
+    @property
+    def net_pnl(self) -> float:
+        return round(self.pnl - self.fee_usd, 4)
 
 
 @dataclass
@@ -145,6 +185,7 @@ class AccountFill:
     teams: tuple[str, ...]
     soccer: bool
     tx: str
+    fee_usd: float = 0.0
 
 
 @dataclass
@@ -156,6 +197,7 @@ class Bucket:
     mark: float = 0.0
     realized: float = 0.0
     unrealized: float = 0.0
+    fees: float = 0.0
 
     @property
     def pnl(self) -> float:
@@ -218,6 +260,8 @@ def _fetch_page(
 ) -> list[dict[str, Any]]:
     client = session or requests.Session()
     response = client.get(f"{DATA_API}{path}", params=params, timeout=timeout)
+    if response.status_code == 400:
+        return []
     response.raise_for_status()
     return _as_list(response.json())
 
@@ -316,6 +360,7 @@ def _lot_from_raw(raw: dict[str, Any], status: str) -> AccountLot | None:
         shares = size if size > 0 else bought
     cur = raw.get("curPrice")
     teams = parse_teams(title)
+    fee = float(raw.get("entryFeesUsdc") or 0)
     return AccountLot(
         title=title,
         outcome=outcome,
@@ -333,6 +378,7 @@ def _lot_from_raw(raw: dict[str, Any], status: str) -> AccountLot | None:
         watch_clubs=watch_clubs_for(teams),
         soccer=is_soccer(title, slug),
         timestamp=_ts(raw.get("timestamp")),
+        fee_usd=round(fee, 4),
     )
 
 
@@ -358,7 +404,48 @@ def _fill_from_raw(raw: dict[str, Any]) -> AccountFill | None:
         teams=parse_teams(title),
         soccer=is_soccer(title, slug),
         tx=str(raw.get("transactionHash") or ""),
+        fee_usd=activity_taker_fee(raw),
     )
+
+
+def _fee_key(title: str, outcome: str) -> tuple[str, str]:
+    return ((title or "").strip().lower(), (outcome or "").strip().lower())
+
+
+def activity_taker_fee(row: dict[str, Any]) -> float:
+    kind = str(row.get("type") or "TRADE").upper()
+    if kind not in {"", "TRADE"}:
+        return 0.0
+    size = float(row.get("size") or 0)
+    price = float(row.get("price") or 0)
+    usdc = row.get("usdcSize")
+    if size <= 0 or price <= 0 or usdc is None:
+        return 0.0
+    notional = size * price
+    paid = float(usdc)
+    side = str(row.get("side") or "BUY").upper()
+    if side == "SELL":
+        return max(0.0, round(notional - paid, 5))
+    return max(0.0, round(paid - notional, 5))
+
+
+def estimate_lot_fee(lot: AccountLot) -> float:
+    rate = SPORTS_TAKER_RATE if lot.soccer else CRYPTO_TAKER_RATE
+    return taker_fee_usdc(lot.shares, lot.avg_price, rate)
+
+
+def apply_taker_fees(lots: list[AccountLot], activity: list[dict[str, Any]]) -> None:
+    paid: dict[tuple[str, str], float] = defaultdict(float)
+    for row in activity:
+        fee = activity_taker_fee(row)
+        if fee <= 0:
+            continue
+        paid[_fee_key(str(row.get("title") or ""), str(row.get("outcome") or ""))] += fee
+    for lot in lots:
+        if lot.fee_usd > 0:
+            continue
+        actual = paid.get(_fee_key(lot.title, lot.outcome))
+        lot.fee_usd = round(actual if actual else estimate_lot_fee(lot), 4)
 
 
 def _enrich_teams(lots: list[AccountLot]) -> None:
@@ -446,6 +533,15 @@ def load_account(
     fills = [fill for row in trade_raw if (fill := _fill_from_raw(row))]
     fills.sort(key=lambda row: row.utc, reverse=True)
     lots.sort(key=lambda row: (row.status != "open", -(row.timestamp.timestamp() if row.timestamp else 0)))
+    activity_raw = _paginate(
+        "/activity",
+        {"user": wallet},
+        session=client,
+        page_size=50,
+        max_rows=4500,
+        parallel=True,
+    )
+    apply_taker_fees(lots, activity_raw)
     return AccountBook(
         username=user,
         wallet=wallet,
@@ -468,10 +564,11 @@ def summarize_factors(lots: list[AccountLot], soccer_only: bool = True) -> list[
         bucket.lots += 1
         bucket.cost += lot.cost_usd
         bucket.mark += lot.mark_usd
+        bucket.fees += lot.fee_usd
         if lot.status == "open":
-            bucket.unrealized += lot.pnl
+            bucket.unrealized += lot.net_pnl
         else:
-            bucket.realized += lot.pnl
+            bucket.realized += lot.net_pnl
     return [buckets[key] for key in FACTOR_ORDER]
 
 
@@ -483,28 +580,31 @@ def summarize_teams(
 ) -> list[Bucket]:
     buckets: dict[str, Bucket] = {}
     for lot in _selected(lots, soccer_only):
-        if watchlist_only:
-            names = lot.watch_clubs
-        else:
-            names = list(lot.watch_clubs)
-            for name in lot.teams:
-                if matched_watch_club(name) is None and name not in names:
-                    names.append(name)
-            names = tuple(names)
+        names: list[tuple[str, str]] = []
+        seen: set[str] = set()
+        for name in lot.teams:
+            key, label = team_identity(name)
+            if not key or key in seen:
+                continue
+            if watchlist_only and matched_watch_club(name) is None:
+                continue
+            seen.add(key)
+            names.append((key, label))
         if not names:
             continue
-        for name in names:
-            bucket = buckets.get(name)
+        for key, label in names:
+            bucket = buckets.get(key)
             if bucket is None:
-                bucket = Bucket(name, watch_display_name(name))
-                buckets[name] = bucket
+                bucket = Bucket(key, label)
+                buckets[key] = bucket
             bucket.lots += 1
             bucket.cost += lot.cost_usd
             bucket.mark += lot.mark_usd
+            bucket.fees += lot.fee_usd
             if lot.status == "open":
-                bucket.unrealized += lot.pnl
+                bucket.unrealized += lot.net_pnl
             else:
-                bucket.realized += lot.pnl
+                bucket.realized += lot.net_pnl
     watch_rank = {name: index for index, name in enumerate(WATCH_QUERIES)}
     return sorted(
         buckets.values(),
@@ -514,8 +614,11 @@ def summarize_teams(
 
 def totals(lots: list[AccountLot], soccer_only: bool = True) -> dict[str, float]:
     rows = _selected(lots, soccer_only)
-    realized = sum(lot.pnl for lot in rows if lot.status != "open")
-    unrealized = sum(lot.pnl for lot in rows if lot.status == "open")
+    realized_gross = sum(lot.pnl for lot in rows if lot.status != "open")
+    unrealized_gross = sum(lot.pnl for lot in rows if lot.status == "open")
+    realized = sum(lot.net_pnl for lot in rows if lot.status != "open")
+    unrealized = sum(lot.net_pnl for lot in rows if lot.status == "open")
+    fees = sum(lot.fee_usd for lot in rows)
     open_rows = [lot for lot in rows if lot.status == "open"]
     return {
         "lots": float(len(rows)),
@@ -523,8 +626,12 @@ def totals(lots: list[AccountLot], soccer_only: bool = True) -> dict[str, float]
         "cost": round(sum(lot.cost_usd for lot in rows), 4),
         "open_cost": round(sum(lot.cost_usd for lot in open_rows), 4),
         "mark": round(sum(lot.mark_usd for lot in open_rows), 4),
+        "fees": round(fees, 4),
+        "gross_realized": round(realized_gross, 4),
+        "gross_unrealized": round(unrealized_gross, 4),
+        "gross_pnl": round(realized_gross + unrealized_gross, 4),
         "realized": round(realized, 4),
         "unrealized": round(unrealized, 4),
         "pnl": round(realized + unrealized, 4),
-        "biggest_win": round(max((lot.pnl for lot in rows), default=0.0), 4),
+        "biggest_win": round(max((lot.net_pnl for lot in rows), default=0.0), 4),
     }

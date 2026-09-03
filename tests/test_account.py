@@ -1,14 +1,19 @@
 from pm_football_bot.account import (
     AccountLot,
     _enrich_teams,
+    apply_taker_fees,
     classify_factor,
     is_soccer,
     parse_teams,
     summarize_factors,
     summarize_teams,
+    taker_fee_usdc,
+    team_identity,
+    totals,
     watch_clubs_for,
 )
 from pm_football_bot.board import matched_watch_club, watch_display_name
+from pm_football_bot.scout import fold_name
 
 
 def _lot(
@@ -20,6 +25,7 @@ def _lot(
     status: str = "closed",
     avg: float = 0.91,
     cost: float = 4.55,
+    fee: float = 0.0,
 ) -> AccountLot:
     teams = parse_teams(title)
     return AccountLot(
@@ -38,6 +44,7 @@ def _lot(
         teams=teams,
         watch_clubs=watch_clubs_for(teams),
         soccer=is_soccer(title, slug),
+        fee_usd=fee,
     )
 
 
@@ -115,3 +122,65 @@ def test_factor_and_team_pnl():
     assert teams["AS Roma"].lots == 5
     # Crypto is excluded from soccer factor totals.
     assert sum(row.pnl for row in factors.values()) == 1.37
+    all_teams = {row.key: row for row in summarize_teams(lots, soccer_only=True, watchlist_only=False)}
+    lecce_key = fold_name("US Lecce")
+    assert lecce_key in all_teams
+    assert all_teams[lecce_key].lots == 5
+    assert "AS Roma" in all_teams
+
+
+def test_weekday_side_is_not_dropped():
+    lots = [
+        _lot("Will Hull City AFC win on 2026-08-22?", "No", -9.14, slug="elc-hul-mun-2026-08-22"),
+        _lot(
+            "Manchester United FC vs. Ipswich Town FC: O/U 5.5",
+            "Under",
+            -5.52,
+            slug="elc-hul-mun-2026-08-22-more-markets",
+        ),
+    ]
+    _enrich_teams(lots)
+    all_teams = summarize_teams(lots, soccer_only=True, watchlist_only=False)
+    labels = {row.label for row in all_teams}
+    keys = {row.key for row in all_teams}
+    assert "Hull City AFC" in labels or fold_name("Hull City AFC") in keys
+    assert any("united" in row.label.lower() or row.key == "man united" for row in all_teams)
+
+
+def test_taker_fee_formula_and_net_pnl():
+    assert taker_fee_usdc(5, 0.92) == 0.0184
+    assert taker_fee_usdc(5, 0.96) == 0.0096
+    lot = _lot("US Lecce vs. AS Roma: O/U 0.5", "Over", 0.40, avg=0.92, fee=0.0184)
+    assert lot.net_pnl == round(0.40 - 0.0184, 4)
+    summary = totals([lot], soccer_only=True)
+    assert summary["fees"] == 0.0184
+    assert summary["gross_pnl"] == 0.40
+    assert summary["pnl"] == round(0.40 - 0.0184, 4)
+
+
+def test_apply_activity_fees_beats_estimate():
+    lot = _lot("Torino FC vs. AC Monza: O/U 0.5", "Over", 0.0, avg=0.92, slug="itc-tor-mon1-2026-09-01-more-markets")
+    apply_taker_fees(
+        [lot],
+        [
+            {
+                "type": "TRADE",
+                "side": "BUY",
+                "size": 5,
+                "price": 0.92,
+                "usdcSize": 4.6184,
+                "title": lot.title,
+                "outcome": "Over",
+            }
+        ],
+    )
+    assert lot.fee_usd == 0.0184
+
+
+def test_team_identity_keeps_weekday_names():
+    key, label = team_identity("US Lecce")
+    assert key == fold_name("US Lecce")
+    assert "Lecce" in label
+    watch_key, watch_label = team_identity("AS Roma")
+    assert watch_key == "AS Roma"
+    assert watch_label == "Roma"
