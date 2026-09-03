@@ -36,6 +36,7 @@ def test_parent_slug_strips_side_books():
     assert league_of("fl1-psg-ren-2026-08-23") == "ligue1"
     assert league_of("sea-fro-juv-2026-08-23") == "seriea"
     assert league_of("bun-bay-stu-2026-08-28") == "bundesliga"
+    assert league_of("por-spo-nac-2026-09-04") == "por"
     assert league_of("mls-chi-van-2026-07-16") is None
 
 
@@ -43,10 +44,12 @@ def test_five_euro_leagues_enabled():
     enabled = {lg.key: lg for lg in load_settings().leagues if lg.enabled}
     assert set(enabled) == {"epl", "laliga", "ligue1", "seriea", "bundesliga"}
     board = {lg.key for lg in load_settings().leagues}
-    assert {"ucl", "uel", "efl", "elc", "efa", "dfb", "itc", "cdr"}.issubset(board)
+    assert {"ucl", "uel", "efl", "elc", "efa", "dfb", "itc", "cdr", "por"}.issubset(board)
     by_key = {lg.key: lg for lg in load_settings().leagues}
     assert by_key["efl"].series_id == "10329"
     assert by_key["efa"].series_id == "10314"
+    assert by_key["por"].series_id == "10330"
+    assert by_key["por"].enabled is False
     assert enabled["ligue1"].series_id == "10195"
     assert enabled["seriea"].series_id == "10203"
     assert enabled["bundesliga"].series_id == "10194"

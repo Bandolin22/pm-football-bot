@@ -129,6 +129,14 @@ def test_watchlist_matches_nicknames_and_typos():
     assert involves_watch_club(title="Lazio vs. Roma", home_team="Lazio")
     assert involves_watch_club(title="AS Roma vs. ACF Fiorentina", home_team="AS Roma")
     assert involves_watch_club(title="US Lecce vs. AS Roma", home_team="US Lecce", away_team="AS Roma")
+    assert involves_watch_club(title="Sporting CP vs. CD Nacional", home_team="Sporting CP")
+    assert involves_watch_club(title="Sporting Lisbon vs. Rio Ave FC", home_team="Sporting Lisbon")
+    assert involves_watch_club(title="Sporting vs. Gil Vicente FC", home_team="Sporting")
+    assert involves_watch_club(title="FC Porto vs. Moreirense FC", home_team="FC Porto")
+    assert involves_watch_club(title="Porto vs. Casa Pia AC", home_team="Porto")
+    assert involves_watch_club(title="SL Benfica vs. Gil Vicente FC", home_team="SL Benfica")
+    assert involves_watch_club(title="Sport Lisboa e Benfica vs. Moreirense FC", home_team="Sport Lisboa e Benfica")
+    assert involves_watch_club(title="Benfica vs. Arouca", home_team="Benfica")
 
 
 def test_watchlist_does_not_cross_match_other_clubs():
@@ -140,4 +148,14 @@ def test_watchlist_does_not_cross_match_other_clubs():
         home_team="Real Sociedad de Fútbol",
         away_team="RCD Espanyol de Barcelona",
     )
+    assert not involves_watch_club(
+        title="Sporting Kansas City vs. LA Galaxy",
+        home_team="Sporting Kansas City",
+        away_team="LA Galaxy",
+    )
+    assert not involves_watch_club(title="Sporting Gijon vs. Oviedo", home_team="Sporting Gijon")
+    assert not involves_watch_club(title="Sporting de Gijón vs. Oviedo", home_team="Sporting de Gijón")
+    assert not involves_watch_club(title="Grêmio vs. Porto Alegre", away_team="Porto Alegre")
+    assert not involves_watch_club(title="SC Braga vs. Gil Vicente FC", home_team="SC Braga")
+    assert not involves_watch_club(title="Sporting Braga vs. Casa Pia AC", home_team="Sporting Braga")
     assert from_fixture(_fixture(title="Getafe CF vs. Valencia CF", slug="lal-get-val"), "LaLiga").watch is False

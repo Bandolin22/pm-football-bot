@@ -82,8 +82,20 @@ def test_watch_club_aliases():
     assert matched_watch_club("AS Roma") == "AS Roma"
     assert matched_watch_club("SSC Napoli") == "SSC Napoli"
     assert matched_watch_club("Club Atlético de Madrid") == "Atletic Madrid"
+    assert matched_watch_club("Sporting CP") == "Sporting CP"
+    assert matched_watch_club("Sporting Lisbon") == "Sporting CP"
+    assert matched_watch_club("FC Porto") == "FC Porto"
+    assert matched_watch_club("Porto") == "FC Porto"
+    assert matched_watch_club("SL Benfica") == "SL Benfica"
+    assert matched_watch_club("Sport Lisboa e Benfica") == "SL Benfica"
+    assert matched_watch_club("Sporting Kansas City") is None
+    assert matched_watch_club("Sporting Gijon") is None
     assert watch_clubs_for(("US Lecce", "AS Roma")) == ("AS Roma",)
+    assert watch_clubs_for(("Sporting CP", "CD Nacional")) == ("Sporting CP",)
     assert watch_display_name("AS Roma") == "Roma"
+    assert watch_display_name("Sporting CP") == "Sporting"
+    assert watch_display_name("FC Porto") == "Porto"
+    assert watch_display_name("SL Benfica") == "Benfica"
     assert watch_display_name("man united") == "Manchester United"
 
 

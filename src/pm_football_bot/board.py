@@ -18,6 +18,7 @@ LEAGUE_ORDER = (
     "ligue1",
     "seriea",
     "bundesliga",
+    "por",
     "ucl",
     "uel",
     "col",
@@ -59,6 +60,9 @@ WATCH_QUERIES = (
     "Como 1907",
     "Lazio",
     "AS Roma",
+    "Sporting CP",
+    "FC Porto",
+    "SL Benfica",
 )
 
 _WATCH_ALIASES = {
@@ -92,11 +96,21 @@ _WATCH_ALIASES = {
     "como 1907": "como",
     "ss lazio": "lazio",
     "as roma": "roma",
+    "sporting cp": "sporting",
+    "sporting lisbon": "sporting",
+    "sporting lisboa": "sporting",
+    "sporting gij n": "sporting gijon",
+    "fc porto": "porto",
+    "sl benfica": "benfica",
+    "sport lisboa e benfica": "benfica",
+    "sport lisboa benfica": "benfica",
 }
 
 # Names that contain a watch token but are a different club.
 _WATCH_NEGATIVES = {
     "barcelona": ("espanyol",),
+    "sporting": ("kansas", "kc", "gijon", "gij", "braga"),
+    "porto": ("alegre",),
 }
 
 WATCH_LABELS = {
@@ -120,6 +134,9 @@ WATCH_LABELS = {
     "Como 1907": "Como",
     "Lazio": "Lazio",
     "AS Roma": "Roma",
+    "Sporting CP": "Sporting",
+    "FC Porto": "Porto",
+    "SL Benfica": "Benfica",
 }
 
 

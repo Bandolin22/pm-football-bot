@@ -32,6 +32,12 @@ leagues:
     sport: bun
     series_id: "10194"
     primary_tag_id: 1494
+  por:
+    enabled: false
+    name: Primeira Liga
+    sport: por
+    series_id: "10330"
+    primary_tag_id: 101772
   ucl:
     enabled: false
     name: UEFA Champions League
