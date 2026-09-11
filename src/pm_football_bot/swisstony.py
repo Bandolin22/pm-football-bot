@@ -14,7 +14,7 @@ DATA_API = "https://data-api.polymarket.com"
 PROFILE = f"https://polymarket.com/@swisstony"
 
 _PARENT = re.compile(
-    r"^((?:epl|lal|ucl|fl1|sea|bun|por|efl|elc|efa|uel|col|cdr|dfb|itc|cde|"
+    r"^((?:epl|lal|ucl|fl1|sea|bun|por|bra|brco|lib|sud|efl|elc|efa|uel|col|cdr|dfb|itc|cde|"
     r"ssc|isc|gsc|frtc|usc|cwc|ecs)-[a-z0-9]+-[a-z0-9]+-\d{4}-\d{2}-\d{2})",
     re.IGNORECASE,
 )
@@ -27,6 +27,10 @@ _SLUG_LEAGUE = {
     "sea": "seriea",
     "bun": "bundesliga",
     "por": "por",
+    "bra": "bra",
+    "brco": "brco",
+    "lib": "lib",
+    "sud": "sud",
     "ucl": "ucl",
     "uel": "uel",
     "col": "col",

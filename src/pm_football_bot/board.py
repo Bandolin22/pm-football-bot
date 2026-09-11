@@ -19,6 +19,10 @@ LEAGUE_ORDER = (
     "seriea",
     "bundesliga",
     "por",
+    "bra",
+    "brco",
+    "lib",
+    "sud",
     "ucl",
     "uel",
     "col",
@@ -63,6 +67,8 @@ WATCH_QUERIES = (
     "Sporting CP",
     "FC Porto",
     "SL Benfica",
+    "Palmeiras",
+    "Flamengo",
 )
 
 _WATCH_ALIASES = {
@@ -104,6 +110,11 @@ _WATCH_ALIASES = {
     "sl benfica": "benfica",
     "sport lisboa e benfica": "benfica",
     "sport lisboa benfica": "benfica",
+    "se palmeiras": "palmeiras",
+    "sociedade esportiva palmeiras": "palmeiras",
+    "cr flamengo": "flamengo",
+    "clube de regatas do flamengo": "flamengo",
+    "crf": "flamengo",
 }
 
 # Names that contain a watch token but are a different club.
@@ -137,6 +148,8 @@ WATCH_LABELS = {
     "Sporting CP": "Sporting",
     "FC Porto": "Porto",
     "SL Benfica": "Benfica",
+    "Palmeiras": "Palmeiras",
+    "Flamengo": "Flamengo",
 }
 
 

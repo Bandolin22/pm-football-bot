@@ -97,6 +97,13 @@ def test_watch_club_aliases():
     assert watch_display_name("FC Porto") == "Porto"
     assert watch_display_name("SL Benfica") == "Benfica"
     assert watch_display_name("man united") == "Manchester United"
+    assert matched_watch_club("SE Palmeiras") == "Palmeiras"
+    assert matched_watch_club("Palmeiras") == "Palmeiras"
+    assert matched_watch_club("CR Flamengo") == "Flamengo"
+    assert matched_watch_club("Flamengo") == "Flamengo"
+    assert watch_clubs_for(("SE Palmeiras", "Bahia")) == ("Palmeiras",)
+    assert watch_display_name("Palmeiras") == "Palmeiras"
+    assert watch_display_name("Flamengo") == "Flamengo"
 
 
 def test_soccer_filter_skips_crypto():

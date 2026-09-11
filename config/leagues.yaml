@@ -38,6 +38,30 @@ leagues:
     sport: por
     series_id: "10330"
     primary_tag_id: 101772
+  bra:
+    enabled: false
+    name: Brasileirão Série A
+    sport: bra
+    series_id: "10359"
+    primary_tag_id: 102648
+  brco:
+    enabled: false
+    name: Copa do Brasil
+    sport: brco
+    series_id: "11460"
+    primary_tag_id: 104340
+  lib:
+    enabled: false
+    name: Copa Libertadores
+    sport: lib
+    series_id: "10289"
+    primary_tag_id: 102562
+  sud:
+    enabled: false
+    name: Copa Sudamericana
+    sport: sud
+    series_id: "10291"
+    primary_tag_id: 102563
   ucl:
     enabled: false
     name: UEFA Champions League

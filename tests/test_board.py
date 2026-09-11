@@ -137,6 +137,11 @@ def test_watchlist_matches_nicknames_and_typos():
     assert involves_watch_club(title="SL Benfica vs. Gil Vicente FC", home_team="SL Benfica")
     assert involves_watch_club(title="Sport Lisboa e Benfica vs. Moreirense FC", home_team="Sport Lisboa e Benfica")
     assert involves_watch_club(title="Benfica vs. Arouca", home_team="Benfica")
+    assert involves_watch_club(title="SE Palmeiras vs. CR Flamengo", home_team="SE Palmeiras", away_team="CR Flamengo")
+    assert involves_watch_club(title="Palmeiras vs. Bahia", home_team="Palmeiras")
+    assert involves_watch_club(title="Flamengo vs. Fluminense", home_team="Flamengo")
+    assert involves_watch_club(title="Sociedade Esportiva Palmeiras vs. Santos", home_team="Sociedade Esportiva Palmeiras")
+    assert involves_watch_club(title="Clube de Regatas do Flamengo vs. Vasco", home_team="Clube de Regatas do Flamengo")
 
 
 def test_watchlist_does_not_cross_match_other_clubs():
@@ -158,4 +163,6 @@ def test_watchlist_does_not_cross_match_other_clubs():
     assert not involves_watch_club(title="Grêmio vs. Porto Alegre", away_team="Porto Alegre")
     assert not involves_watch_club(title="SC Braga vs. Gil Vicente FC", home_team="SC Braga")
     assert not involves_watch_club(title="Sporting Braga vs. Casa Pia AC", home_team="Sporting Braga")
+    assert not involves_watch_club(title="Fluminense vs. Vasco", home_team="Fluminense", away_team="Vasco")
+    assert not involves_watch_club(title="Bahia vs. Santos", home_team="Bahia", away_team="Santos")
     assert from_fixture(_fixture(title="Getafe CF vs. Valencia CF", slug="lal-get-val"), "LaLiga").watch is False

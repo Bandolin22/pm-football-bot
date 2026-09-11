@@ -109,6 +109,11 @@ LEAGUE_LABEL = {
     "usc": "UEFA Super Cup",
     "cwc": "Club World Cup",
     "ecs": "Community Shield",
+    "por": "Primeira Liga",
+    "bra": "Brasileirão",
+    "brco": "Copa do Brasil",
+    "lib": "Libertadores",
+    "sud": "Sudamericana",
 }
 
 
