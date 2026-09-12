@@ -23,6 +23,11 @@ LEAGUE_ORDER = (
     "brco",
     "lib",
     "sud",
+    "bel",
+    "ned",
+    "sco",
+    "tur",
+    "nor",
     "ucl",
     "uel",
     "col",
@@ -69,6 +74,13 @@ WATCH_QUERIES = (
     "SL Benfica",
     "Palmeiras",
     "Flamengo",
+    "Club Brugge",
+    "PSV",
+    "Feyenoord",
+    "Celtic",
+    "Galatasaray",
+    "Fenerbahce",
+    "Bodo Glimt",
 )
 
 _WATCH_ALIASES = {
@@ -115,6 +127,17 @@ _WATCH_ALIASES = {
     "cr flamengo": "flamengo",
     "clube de regatas do flamengo": "flamengo",
     "crf": "flamengo",
+    "club brugge": "brugge",
+    "club brugge kv": "brugge",
+    "fc brugge": "brugge",
+    "psv eindhoven": "psv",
+    "feyenoord rotterdam": "feyenoord",
+    "celtic fc": "celtic",
+    "glasgow celtic": "celtic",
+    "galatasaray sk": "galatasaray",
+    "fenerbahce sk": "fenerbahce",
+    "fk bodo glimt": "bodo glimt",
+    "bodo glimt fotball": "bodo glimt",
 }
 
 # Names that contain a watch token but are a different club.
@@ -122,6 +145,7 @@ _WATCH_NEGATIVES = {
     "barcelona": ("espanyol",),
     "sporting": ("kansas", "kc", "gijon", "gij", "braga"),
     "porto": ("alegre",),
+    "brugge": ("cercle",),
 }
 
 WATCH_LABELS = {
@@ -150,6 +174,13 @@ WATCH_LABELS = {
     "SL Benfica": "Benfica",
     "Palmeiras": "Palmeiras",
     "Flamengo": "Flamengo",
+    "Club Brugge": "Club Brugge",
+    "PSV": "PSV",
+    "Feyenoord": "Feyenoord",
+    "Celtic": "Celtic",
+    "Galatasaray": "Galatasaray",
+    "Fenerbahce": "Fenerbahçe",
+    "Bodo Glimt": "Bodø/Glimt",
 }
 
 

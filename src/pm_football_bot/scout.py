@@ -110,6 +110,7 @@ def split_fixture(title: str) -> tuple[str, str] | None:
 def fold_name(name: str) -> str:
     text = (name or "").lower().replace("ü", "u").replace("ö", "o").replace("ä", "a")
     text = text.replace("é", "e").replace("è", "e").replace("ñ", "n").replace("&", " and ")
+    text = text.replace("ø", "o").replace("ç", "c").replace("ş", "s").replace("ğ", "g").replace("ı", "i")
     text = _STRIP.sub(" ", text)
     text = _PUNCT.sub(" ", text).strip()
     return _ALIASES.get(text, text)

@@ -142,6 +142,19 @@ def test_watchlist_matches_nicknames_and_typos():
     assert involves_watch_club(title="Flamengo vs. Fluminense", home_team="Flamengo")
     assert involves_watch_club(title="Sociedade Esportiva Palmeiras vs. Santos", home_team="Sociedade Esportiva Palmeiras")
     assert involves_watch_club(title="Clube de Regatas do Flamengo vs. Vasco", home_team="Clube de Regatas do Flamengo")
+    assert involves_watch_club(title="Club Brugge vs. KAA Gent", home_team="Club Brugge")
+    assert involves_watch_club(title="Club Brugge KV vs. Anderlecht", home_team="Club Brugge KV")
+    assert involves_watch_club(title="Club Brugge vs. Cercle Brugge", home_team="Club Brugge", away_team="Cercle Brugge")
+    assert involves_watch_club(title="PSV Eindhoven vs. Ajax", home_team="PSV Eindhoven")
+    assert involves_watch_club(title="PSV vs. Feyenoord", home_team="PSV", away_team="Feyenoord")
+    assert involves_watch_club(title="Feyenoord Rotterdam vs. AZ Alkmaar", home_team="Feyenoord Rotterdam")
+    assert involves_watch_club(title="Celtic FC vs. Rangers FC", home_team="Celtic FC")
+    assert involves_watch_club(title="Glasgow Celtic vs. Hearts", home_team="Glasgow Celtic")
+    assert involves_watch_club(title="Galatasaray SK vs. Trabzonspor", home_team="Galatasaray SK")
+    assert involves_watch_club(title="Fenerbahçe vs. Beşiktaş", home_team="Fenerbahçe")
+    assert involves_watch_club(title="Fenerbahce vs. Galatasaray", home_team="Fenerbahce", away_team="Galatasaray")
+    assert involves_watch_club(title="FK Bodø/Glimt vs. Molde FK", home_team="FK Bodø/Glimt")
+    assert involves_watch_club(title="Bodo/Glimt vs. Viking", home_team="Bodo/Glimt")
 
 
 def test_watchlist_does_not_cross_match_other_clubs():
@@ -165,4 +178,10 @@ def test_watchlist_does_not_cross_match_other_clubs():
     assert not involves_watch_club(title="Sporting Braga vs. Casa Pia AC", home_team="Sporting Braga")
     assert not involves_watch_club(title="Fluminense vs. Vasco", home_team="Fluminense", away_team="Vasco")
     assert not involves_watch_club(title="Bahia vs. Santos", home_team="Bahia", away_team="Santos")
+    assert not involves_watch_club(title="Cercle Brugge vs. KAA Gent", home_team="Cercle Brugge")
+    assert not involves_watch_club(title="Union Saint-Gilloise vs. Mechelen", home_team="Union Saint-Gilloise")
+    assert not involves_watch_club(title="Ajax vs. FC Twente", home_team="Ajax")
+    assert not involves_watch_club(title="Rangers FC vs. Hearts", home_team="Rangers FC")
+    assert not involves_watch_club(title="Beşiktaş vs. Trabzonspor", home_team="Beşiktaş")
+    assert not involves_watch_club(title="Molde FK vs. Viking FK", home_team="Molde FK")
     assert from_fixture(_fixture(title="Getafe CF vs. Valencia CF", slug="lal-get-val"), "LaLiga").watch is False

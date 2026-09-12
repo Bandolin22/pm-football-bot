@@ -62,6 +62,36 @@ leagues:
     sport: sud
     series_id: "10291"
     primary_tag_id: 102563
+  bel:
+    enabled: false
+    name: Belgium Pro League
+    sport: bel1
+    series_id: "12351"
+    primary_tag_id: 105725
+  ned:
+    enabled: false
+    name: Eredivisie
+    sport: ere
+    series_id: "10286"
+    primary_tag_id: 101735
+  sco:
+    enabled: false
+    name: Scottish Premiership
+    sport: scop
+    series_id: "10674"
+    primary_tag_id: 102872
+  tur:
+    enabled: false
+    name: Süper Lig
+    sport: tur
+    series_id: "10292"
+    primary_tag_id: 102564
+  nor:
+    enabled: false
+    name: Eliteserien
+    sport: nor
+    series_id: "10362"
+    primary_tag_id: 102651
   ucl:
     enabled: false
     name: UEFA Champions League

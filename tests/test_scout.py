@@ -21,6 +21,9 @@ def test_folds_club_suffixes():
     assert fold_name("Manchester United FC") == "manchester united"
     assert fold_name("FC Bayern München") == "bayern munchen"
     assert fold_name("Paris Saint-Germain FC") == "paris saint germain"
+    assert fold_name("Club Brugge") == "brugge"
+    assert fold_name("Fenerbahçe") == "fenerbahce"
+    assert fold_name("FK Bodø/Glimt") == "fk bodo glimt"
 
 
 def test_matches_football_data_team_rows():

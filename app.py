@@ -114,6 +114,11 @@ LEAGUE_LABEL = {
     "brco": "Copa do Brasil",
     "lib": "Libertadores",
     "sud": "Sudamericana",
+    "bel": "Belgium",
+    "ned": "Eredivisie",
+    "sco": "Scottish Premiership",
+    "tur": "Süper Lig",
+    "nor": "Eliteserien",
 }
 
 

@@ -104,6 +104,20 @@ def test_watch_club_aliases():
     assert watch_clubs_for(("SE Palmeiras", "Bahia")) == ("Palmeiras",)
     assert watch_display_name("Palmeiras") == "Palmeiras"
     assert watch_display_name("Flamengo") == "Flamengo"
+    assert matched_watch_club("Club Brugge") == "Club Brugge"
+    assert matched_watch_club("Club Brugge KV") == "Club Brugge"
+    assert matched_watch_club("Cercle Brugge") is None
+    assert matched_watch_club("PSV Eindhoven") == "PSV"
+    assert matched_watch_club("Feyenoord Rotterdam") == "Feyenoord"
+    assert matched_watch_club("Celtic FC") == "Celtic"
+    assert matched_watch_club("Rangers FC") is None
+    assert matched_watch_club("Galatasaray SK") == "Galatasaray"
+    assert matched_watch_club("Fenerbahçe") == "Fenerbahce"
+    assert matched_watch_club("FK Bodø/Glimt") == "Bodo Glimt"
+    assert watch_display_name("Club Brugge") == "Club Brugge"
+    assert watch_display_name("PSV") == "PSV"
+    assert watch_display_name("Fenerbahce") == "Fenerbahçe"
+    assert watch_display_name("Bodo Glimt") == "Bodø/Glimt"
 
 
 def test_soccer_filter_skips_crypto():
