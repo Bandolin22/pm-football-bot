@@ -29,6 +29,12 @@ def _as_float(value: Any) -> float | None:
         return None
 
 
+def _page_past_horizon(page: list[dict[str, Any]], until: datetime) -> bool:
+    """True when every dated event on the page kicks off after until."""
+    dated = [kick for item in page if (kick := _parse_kickoff(item)) is not None]
+    return bool(dated) and all(kick > until for kick in dated)
+
+
 def _parse_kickoff(event: dict[str, Any]) -> datetime | None:
     raw = event.get("startTime") or event.get("endDate")
     if not raw:
@@ -141,26 +147,45 @@ class GammaClient:
         response.raise_for_status()
         return response.json()
 
-    def list_moneyline_events(self, league: League) -> list[dict[str, Any]]:
+    def list_moneyline_events(
+        self,
+        league: League,
+        *,
+        order: str | None = None,
+        until: datetime | None = None,
+        max_pages: int = 40,
+    ) -> list[dict[str, Any]]:
+        """Active 1X2 events. Optional startTime order + until stops after far kickoffs."""
         rows: list[dict[str, Any]] = []
         offset = 0
-        while True:
-            page = self._get(
-                "/events",
-                {
-                    "series_id": league.series_id,
-                    "active": "true",
-                    "closed": "false",
-                    "limit": 50,
-                    "offset": offset,
-                },
-            )
+        pages = 0
+        while pages < max(1, max_pages):
+            params: dict[str, Any] = {
+                "series_id": league.series_id,
+                "active": "true",
+                "closed": "false",
+                "limit": 50,
+                "offset": offset,
+            }
+            if order:
+                params["order"] = order
+                params["ascending"] = "true"
+            page = self._get("/events", params)
             if not isinstance(page, list) or not page:
                 break
-            rows.extend(item for item in page if is_primary_moneyline_event(item))
+            for item in page:
+                if not is_primary_moneyline_event(item):
+                    continue
+                kick = _parse_kickoff(item)
+                if until is not None and kick is not None and kick > until:
+                    continue
+                rows.append(item)
+            if until is not None and _page_past_horizon(page, until):
+                break
             if len(page) < 50:
                 break
             offset += 50
+            pages += 1
         return rows
 
     def fetch_event_by_slug(self, slug: str) -> dict[str, Any] | None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from pm_football_bot.config import League
 from pm_football_bot.gamma import GammaClient
@@ -234,6 +234,19 @@ def from_fixture(fixture: Fixture, league_name: str) -> UpcomingMatch:
     )
 
 
+def _events_for_league(
+    client: GammaClient,
+    league: League,
+    until: datetime | None,
+) -> list:
+    if until is None:
+        return client.list_moneyline_events(league)
+    try:
+        return client.list_moneyline_events(league, order="startTime", until=until)
+    except TypeError:
+        return client.list_moneyline_events(league)
+
+
 def list_upcoming(
     client: GammaClient,
     leagues: tuple[League, ...],
@@ -242,9 +255,11 @@ def list_upcoming(
     per_league: int | None = DEFAULT_LIMIT,
     league_keys: set[str] | None = None,
     include_disabled: bool = True,
+    horizon_hours: float | None = None,
 ) -> list[UpcomingMatch]:
     """Next moneyline fixtures per league, including UCL even when harvest is off."""
     now = now or utcnow()
+    until = now + timedelta(hours=horizon_hours) if horizon_hours is not None else None
     wanted = [
         league
         for league in _ordered(leagues)
@@ -253,7 +268,7 @@ def list_upcoming(
     ]
 
     def _load(league: League) -> list[UpcomingMatch]:
-        events = client.list_moneyline_events(league)
+        events = _events_for_league(client, league, until)
         fixtures = [client.parse_moneyline(league, event) for event in events]
         picked = take_upcoming(fixtures, now, per_league)
         return [from_fixture(item, league.name) for item in picked]

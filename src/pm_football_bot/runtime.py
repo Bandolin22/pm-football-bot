@@ -10,7 +10,8 @@ import traceback
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from pm_football_bot.notify import POLL_SECONDS, run_once, send_telegram, telegram_creds
+from pm_football_bot.board import WATCH_LABELS, WATCH_QUERIES
+from pm_football_bot.notify import LEAD_MINUTES, POLL_SECONDS, run_once, send_telegram, telegram_creds
 
 HOST = os.environ.get("HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT", "8080"))
@@ -56,13 +57,14 @@ def _announce() -> None:
     creds = telegram_creds()
     if creds is None:
         return
+    clubs = ", ".join(WATCH_LABELS.get(query, query) for query in WATCH_QUERIES)
+    hours = max(1, round(LEAD_MINUTES / 60))
     send_telegram(
         creds[0],
         creds[1],
         "Watchlist alerter is online.\n"
-        "I will Telegram you ~1 hour before kickoff for Real Madrid, Barca, "
-        "Atlético, Arsenal, Liverpool, City, United, Chelsea, Spurs, Inter, "
-        "Milan, Juventus, Atalanta, Napoli, Como, Lazio, Roma, Bayern, Dortmund, and PSG, with live Polymarket 1X2.",
+        f"I will Telegram you ~{hours} hours before kickoff for {clubs}, "
+        "in every listed league and cup, with live Polymarket 1X2.",
     )
 
 

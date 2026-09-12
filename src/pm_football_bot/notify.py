@@ -15,9 +15,16 @@ from pm_football_bot.gamma import GammaClient
 from pm_football_bot.models import utcnow
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}/sendMessage"
-LEAD_MINUTES = 60
+# GitHub Actions cron on a private repo can slip 30–90+ minutes, so a 60-minute
+# window misses Saturday EPL / LaLiga kickoffs. Three hours still catches them.
+LEAD_MINUTES = 180
 POLL_SECONDS = 60
 SENT_KEEP_DAYS = 7
+
+
+def fetch_horizon_hours(lead_minutes: int = LEAD_MINUTES) -> float:
+    """How far ahead to download 1X2 events so the alert job stays fast."""
+    return max(lead_minutes / 60.0 + 3.0, 8.0)
 
 
 def sent_path() -> Path:
@@ -48,7 +55,7 @@ def minutes_to_kickoff(match: UpcomingMatch, now: datetime) -> float | None:
 
 
 def is_pre_kick_alert(match: UpcomingMatch, now: datetime, lead_minutes: int = LEAD_MINUTES) -> bool:
-    """True in the hour before kickoff (still pre-match)."""
+    """True in the lead window before kickoff (still pre-match, watchlist only)."""
     if not match.watch:
         return False
     mins = minutes_to_kickoff(match, now)
@@ -85,7 +92,7 @@ def format_alert(match: UpcomingMatch, now: datetime) -> str:
     if match.kickoff is not None:
         kick = match.kickoff.astimezone(timezone.utc).strftime("%a %d %b %Y, %H:%M UTC")
     return (
-        f"★ {match.league_name} · {eta}\n"
+        f"* {match.league_name} · {eta}\n"
         f"{match.title}\n"
         f"{_pct(match.home_pct)} Home · {_pct(match.draw_pct)} Draw · {_pct(match.away_pct)} Away\n"
         f"{kick}\n"
@@ -151,18 +158,29 @@ def run_once(
     now = now or utcnow()
     settings = load_settings()
     client = GammaClient(settings, session=session)
+    horizon = fetch_horizon_hours(lead_minutes)
     matches = list_upcoming(
         client,
         settings.leagues,
         now=now,
         per_league=None,
         include_disabled=True,
+        horizon_hours=horizon,
     )
+    watched = [row for row in matches if row.watch]
     path = sent_path()
     sent = load_sent(path)
     due = due_alerts(matches, now, set(sent), lead_minutes=lead_minutes)
+    print(
+        f"Scanned {len(matches)} upcoming 1X2 across {len(settings.leagues)} competitions "
+        f"(next {horizon:.0f}h); {len(watched)} watchlist; {len(due)} due in {lead_minutes}m."
+    )
+    for row in watched:
+        mins = minutes_to_kickoff(row, now)
+        eta = f"{mins:.0f}m" if mins is not None else "?"
+        print(f"  watch {row.league_name}: {row.title} ({eta})")
     if not due:
-        print("No watchlist kickoffs in the next hour.")
+        print(f"No watchlist kickoffs in the next {lead_minutes} minutes.")
         return 0
 
     creds = None if dry_run else telegram_creds()
@@ -197,7 +215,7 @@ def loop_forever(*, dry_run: bool = False, lead_minutes: int = LEAD_MINUTES, eve
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Telegram alert 1 hour before watchlist kickoffs, with live Polymarket 1X2."
+        description="Telegram alert before watchlist kickoffs, with live Polymarket 1X2."
     )
     parser.add_argument("--loop", action="store_true", help="Keep polling.")
     parser.add_argument("--dry-run", action="store_true", help="Print alerts, do not send Telegram.")

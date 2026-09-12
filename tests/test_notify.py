@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from pm_football_bot.board import UpcomingMatch
-from pm_football_bot.notify import due_alerts, format_alert, is_pre_kick_alert, mark_sent, sent_path
+from pm_football_bot.notify import due_alerts, fetch_horizon_hours, format_alert, is_pre_kick_alert, mark_sent, sent_path
 
 
 def _match(
@@ -29,18 +29,38 @@ def _match(
     )
 
 
-def test_alerts_in_the_hour_before_kickoff():
+def test_alerts_in_the_lead_window_before_kickoff():
     now = datetime.now(timezone.utc)
     soon = _match(hours=0.7)
-    later = _match(hours=3, slug="later")
+    this_window = _match(hours=2.5, slug="epl-liv-ful")
+    later = _match(hours=5, slug="later")
     past = _match(hours=-0.1, slug="past")
     other = _match(hours=0.5, watch=False, slug="other")
+    laliga = UpcomingMatch(
+        league="laliga",
+        league_name="LaLiga",
+        title="Real Madrid CF vs. Real Sociedad",
+        slug="laliga-rma-rso",
+        kickoff=now + timedelta(hours=1.2),
+        home_team="Real Madrid CF",
+        away_team="Real Sociedad",
+        home_pct=0.61,
+        draw_pct=0.22,
+        away_pct=0.17,
+        watch=True,
+    )
     assert is_pre_kick_alert(soon, now)
+    assert is_pre_kick_alert(this_window, now)
+    assert is_pre_kick_alert(laliga, now)
     assert not is_pre_kick_alert(later, now)
     assert not is_pre_kick_alert(past, now)
     assert not is_pre_kick_alert(other, now)
-    due = due_alerts([soon, later, past, other], now, sent=set())
-    assert [row.slug for row in due] == ["epl-ars-che-2026-08-30"]
+    due = due_alerts([soon, this_window, later, past, other, laliga], now, sent=set())
+    assert [row.slug for row in due] == ["epl-ars-che-2026-08-30", "laliga-rma-rso", "epl-liv-ful"]
+
+
+def test_fetch_horizon_covers_lead_window():
+    assert fetch_horizon_hours(180) >= 6
 
 
 def test_skips_already_sent_slug():

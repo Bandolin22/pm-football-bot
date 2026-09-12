@@ -12,7 +12,7 @@ concurrency:
 jobs:
   alert:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -39,14 +39,15 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONPATH: src
+          PYTHONUNBUFFERED: "1"
         run: python -m pm_football_bot.notify
 
       - name: Ensure state file exists
-        if: always()
+        if: success()
         run: test -f data/notify/sent.json || echo '{}' > data/notify/sent.json
 
       - name: Save sent state
-        if: always()
+        if: success()
         uses: actions/cache/save@v4
         with:
           path: data/notify/sent.json

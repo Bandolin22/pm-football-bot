@@ -100,7 +100,7 @@ Deploy from the GitHub repo at [share.streamlit.io](https://share.streamlit.io):
 
 **Do not put secrets in a committed `.env`.** Auto-deploy never copies `.env`.
 
-- **Telegram pings** (1 hour before watchlist kickoff): already set as GitHub Actions secrets `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`. The Streamlit site does not need them.
+- **Telegram pings** (~3 hours before watchlist kickoff, every listed league/cup): already set as GitHub Actions secrets `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`. The Streamlit site does not need them.
 - **KEEP briefings** on the website: in Streamlit, open the app menu → **Settings** → **Secrets** and paste:
 
 ```toml
@@ -111,7 +111,7 @@ Then reboot the app. Locally, keep using `.env` on this PC.
 
 ## 24/7 Telegram watchlist (cloud)
 
-The Streamlit desk does **not** send Telegram. GitHub Actions checks every 10 minutes. That still catches the 1-hour pre-kickoff window. `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are already in the repo Actions secrets.
+The Streamlit desk does **not** send Telegram. GitHub Actions checks every 10 minutes. The alert window is 3 hours before kickoff so delayed cron still catches EPL and LaLiga. `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are already in the repo Actions secrets.
 
 ```powershell
 # local smoke test
