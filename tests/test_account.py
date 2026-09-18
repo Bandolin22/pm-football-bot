@@ -114,6 +114,11 @@ def test_watch_club_aliases():
     assert matched_watch_club("Galatasaray SK") == "Galatasaray"
     assert matched_watch_club("Fenerbahçe") == "Fenerbahce"
     assert matched_watch_club("FK Bodø/Glimt") == "Bodo Glimt"
+    assert matched_watch_club("Bromsgrove Sporting FC") is None
+    assert matched_watch_club("FC United of Manchester") is None
+    assert matched_watch_club("Ossett United FC") is None
+    assert matched_watch_club("South Liverpool FC") is None
+    assert matched_watch_club("Warrington Town FC") is None
     assert watch_display_name("Club Brugge") == "Club Brugge"
     assert watch_display_name("PSV") == "PSV"
     assert watch_display_name("Fenerbahce") == "Fenerbahçe"

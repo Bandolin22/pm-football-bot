@@ -184,4 +184,25 @@ def test_watchlist_does_not_cross_match_other_clubs():
     assert not involves_watch_club(title="Rangers FC vs. Hearts", home_team="Rangers FC")
     assert not involves_watch_club(title="Beşiktaş vs. Trabzonspor", home_team="Beşiktaş")
     assert not involves_watch_club(title="Molde FK vs. Viking FK", home_team="Molde FK")
+    assert not involves_watch_club(
+        title="Bromsgrove Sporting FC vs. Leek Town FC",
+        home_team="Bromsgrove Sporting FC",
+        away_team="Leek Town FC",
+    )
+    assert not involves_watch_club(
+        title="FC United of Manchester vs. Ossett United FC",
+        home_team="FC United of Manchester",
+        away_team="Ossett United FC",
+    )
+    assert not involves_watch_club(
+        title="Warrington Town FC vs. South Liverpool FC",
+        home_team="Warrington Town FC",
+        away_team="South Liverpool FC",
+    )
+    assert not involves_watch_club(title="South Liverpool FC vs. Marine", home_team="South Liverpool FC")
+    assert not involves_watch_club(title="Ossett United FC vs. Hyde", home_team="Ossett United FC")
     assert from_fixture(_fixture(title="Getafe CF vs. Valencia CF", slug="lal-get-val"), "LaLiga").watch is False
+    assert from_fixture(
+        _fixture(title="Bromsgrove Sporting FC vs. Leek Town FC", slug="efa-bro-lee"),
+        "FA Cup",
+    ).watch is False

@@ -143,10 +143,49 @@ _WATCH_ALIASES = {
 # Names that contain a watch token but are a different club.
 _WATCH_NEGATIVES = {
     "barcelona": ("espanyol",),
-    "sporting": ("kansas", "kc", "gijon", "gij", "braga"),
+    "sporting": ("kansas", "kc", "gijon", "gij", "braga", "bromsgrove"),
     "porto": ("alegre",),
     "brugge": ("cercle",),
+    "liverpool": ("south",),
+    "manchester united": ("ossett",),
 }
+
+# Extra tokens allowed around a watch name (FC, CP, KV, …). Place names are not allowed.
+_WATCH_NOISE = frozenset(
+    {
+        "fc",
+        "cf",
+        "afc",
+        "sc",
+        "ac",
+        "as",
+        "ss",
+        "us",
+        "rc",
+        "kv",
+        "sk",
+        "bc",
+        "se",
+        "cr",
+        "sl",
+        "fk",
+        "ssc",
+        "cp",
+        "1907",
+        "lisbon",
+        "lisboa",
+        "eindhoven",
+        "rotterdam",
+        "glasgow",
+        "hotspur",
+        "clube",
+        "regatas",
+        "do",
+        "sociedade",
+        "esportiva",
+        "fotball",
+    }
+)
 
 WATCH_LABELS = {
     "Real Madrid": "Real Madrid",
@@ -324,13 +363,17 @@ def watch_first(rows: list[dict]) -> list[dict]:
 
 
 def involves_watch_club(*, title: str = "", home_team: str = "", away_team: str = "") -> bool:
-    candidates = [home_team, away_team]
+    """True only if a side is a watchlist club, not because the fixture title shares words."""
+    names: list[str] = []
+    for item in (home_team, away_team):
+        if item and item not in names:
+            names.append(item)
     sides = split_fixture(title)
     if sides:
-        candidates.extend(sides)
-    if title:
-        candidates.append(title)
-    return any(_is_watch_name(item) for item in candidates if item)
+        for item in sides:
+            if item and item not in names:
+                names.append(item)
+    return any(_is_watch_name(item) for item in names)
 
 
 def matched_watch_club(name: str) -> str | None:
@@ -377,14 +420,22 @@ def _is_watch_name(name: str) -> bool:
 def _watch_hit(watch: str, candidate: str) -> bool:
     if watch == candidate:
         return True
-    w_tokens = set(watch.split())
-    c_tokens = set(candidate.split())
-    if w_tokens and w_tokens <= c_tokens:
-        return True
-    if len(watch) >= 6 and watch in candidate:
-        return True
-    # Fuzzy for typos, but not "Paris FC" vs "Paris Saint-Germain".
+    w_tokens = watch.split()
+    c_tokens = candidate.split()
+    if not w_tokens or not c_tokens:
+        return False
+    n = len(w_tokens)
+    for i in range(len(c_tokens) - n + 1):
+        if c_tokens[i : i + n] != w_tokens:
+            continue
+        extra = c_tokens[:i] + c_tokens[i + n :]
+        if all(tok in _WATCH_NOISE for tok in extra):
+            return True
+    if len(w_tokens) != len(c_tokens):
+        return False
     if abs(len(watch) - len(candidate)) > 6:
+        return False
+    if _name_score(w_tokens[0], c_tokens[0]) < 0.84:
         return False
     return _name_score(watch, candidate) >= 0.84
 
