@@ -13,12 +13,14 @@ config/
   leagues.yaml      # which competitions (EPL / LaLiga / Ligue 1 / Serie A / Bundesliga)
   strategy.yaml     # mismatch filter + which tickets to buy
   settings.yaml     # $400 bankroll, ticket size, dry-run
+  keeper.yaml       # watchlist keeper thresholds (5 shares, 85/90, 98c cap)
 src/pm_football_bot/
   gamma.py          # discover fixtures + more-markets
   signals.py        # turn a fixture into tickets
+  keeper.py         # watchlist form-checked 5-share buys
   risk.py           # cap size so one weekend cannot spend the stack
   execution.py      # GTC maker bids (off until --live)
-  scan.py           # the loop
+  scan.py           # the KEEP harvest loop
 ```
 
 A ticket is always the same shape:
@@ -68,6 +70,8 @@ python -m streamlit run app.py
 
 Click **Scan live boards**. Matches are grouped. **KEEP** is the three-ticket harvest on the YAML mismatch (dog ≤ 12¢, favorite ≥ 70¢). **SKIP** is the wrong market. **BORDERLINE** only appears if a ticket slipped outside that cutoff.
 
+Open **Watchlist keeper** in the sidebar: **Scan**, then **Send live orders** (tick live GTC bids). **Auto-run** repeats scan/buy while that tab stays open.
+
 Open the **Compare with swisstony** tab to see his bought shares and average price on the same match. **SAME LINE** means he holds the ticket you would buy. His extra lots (team Under 2.5, exact scores) stay on the right so you can see what not to copy.
 
 ### Terminal dry-run
@@ -90,7 +94,9 @@ pip install -e .[live]
 python -m pm_football_bot --live
 ```
 
-Fill `.env` with the Polymarket wallet private key and CLOB API creds. Keep `dry_run: true` in YAML until you pass `--live`.
+Fill `.env` with the Polymarket wallet private key (`PK`) and the **deposit wallet**
+address (`FUNDER`, the address on your polymarket.com profile — not the EOA).
+The Watchlist keeper UI can save both. Keep `dry_run: true` in YAML until you pass `--live`.
 
 ## Website (online desk)
 
@@ -117,6 +123,30 @@ The Streamlit desk does **not** send Telegram. GitHub Actions checks every 10 mi
 # local smoke test
 .\.venv\Scripts\python.exe -m pm_football_bot.notify --dry-run
 ```
+
+## Watchlist keeper (form-checked ~5 shares)
+
+Separate from KEEP. When a watchlist club's market is listed, the keeper checks recent form / scoring (football-data.org) and proposes about **5 shares**:
+
+| Ticket | When | Skip |
+|---|---|---|
+| Dog **No** | Watchlist home ≥ 80% or away ≥ 85%, plus strong form or H2H | Two watchlist clubs; missing form+H2H unless the dog is tiny (≤12¢) |
+| Over 0.5 (or Neither-first **No** / 0-0 **No**) | Cheapest of those three | Price ≥ 98¢; watchlist looks goal-shy |
+| Over 1.5 | All Over 0.5 books ≥ 98¢ | Over 1.5 also ≥ 98¢ |
+| Under 5.5 | Favorite away; if ≥98¢ buy Any Other Score No instead | Two watchlist clubs; either side’s last matches average ≥2.2 GF or ≥4.0 total goals |
+| Over 7.5 corners | Two watchlist clubs, price ~75¢ | Any other match |
+
+Default is dry-run. KEEP harvest is unchanged. GitHub Actions does not run this bot.
+
+```powershell
+python -m streamlit run app.py
+# Watchlist keeper → Scan, optionally tick Place live GTC bids, Send live orders or Auto-run
+
+python -m pm_football_bot.keeper
+python -m pm_football_bot.keeper --live
+```
+
+Tune thresholds in `config/keeper.yaml`.
 
 ## Tune without rewriting code
 

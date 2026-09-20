@@ -262,13 +262,13 @@ def render_forecast(ticket) -> None:
 def render_briefing(ticket) -> None:
     st.markdown("##### Team briefing")
     st.caption(
-        "Form, table, home/away, H2H, and rest from football-data.org. "
+        "Form, table, home/away, H2H, and rest from football-data.co.uk (API fallback). "
         "Opta predicted XI / injuries / xG are **not** on a public API — those stay missing unless you buy Stats Perform."
     )
     key = f"briefing:{ticket.slug}"
     fkey = f"forecast:{ticket.slug}"
     if st.button("Load briefing", key=f"btn-{ticket.slug}"):
-        with st.spinner("Loading football-data.org…"):
+        with st.spinner("Loading team briefing…"):
             st.session_state[key] = load_briefing(
                 ticket.league,
                 ticket.fixture,
@@ -319,7 +319,8 @@ st.caption(
     "Your dry-run harvest on EPL, LaLiga, Ligue 1, Serie A, and Bundesliga. "
     "Swisstony’s open book is still mostly EPL / LaLiga / UCL. This page never places orders. "
     "Open **Upcoming** in the left sidebar for every watchlist 1X2, including cups "
-    "(EFL, FA Cup, UCL, Europa, DFB-Pokal). Open **My trading** for your "
+    "(EFL, FA Cup, UCL, Europa, DFB-Pokal). Open **Watchlist keeper** for the "
+    "form-checked ~5-share keeper (scan, live orders, or auto-run). Open **My trading** for your "
     "[@zerobetap](https://polymarket.com/@zerobetap) history and PnL by club and harvest factor."
 )
 

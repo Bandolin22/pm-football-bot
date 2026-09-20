@@ -26,6 +26,7 @@ pm-football-bot = "pm_football_bot.scan:main"
 pm-predict-train = "pm_football_bot.predict.train:main"
 pm-watch-alert = "pm_football_bot.notify:main"
 pm-watch-runtime = "pm_football_bot.runtime:main"
+pm-watch-keeper = "pm_football_bot.keeper:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

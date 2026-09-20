@@ -15,4 +15,5 @@ data_swisstony_*.csv
 .vscode/
 data/predict/*.csv
 data/predict/*.joblib
+data/keeper/
 .streamlit/secrets.toml

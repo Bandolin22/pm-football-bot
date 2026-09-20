@@ -7,13 +7,16 @@ from typing import Any
 
 import yaml
 
+from pm_football_bot.dotenv_store import delete_dotenv_keys, mask_secret, upsert_dotenv
+
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = ROOT / "config"
+ENV_PATH = ROOT / ".env"
 
 
 def hydrate_env() -> None:
     """Load .env and Streamlit Cloud secrets into os.environ (existing env wins)."""
-    path = ROOT / ".env"
+    path = ENV_PATH
     if path.exists():
         for raw in path.read_text(encoding="utf-8").splitlines():
             line = raw.strip()

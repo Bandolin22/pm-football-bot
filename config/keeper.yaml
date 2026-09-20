@@ -1,0 +1,30 @@
+# Watchlist keeper: ~5-share harvest on watchlist fixtures only.
+# Does not replace the KEEP mismatch scan. Default run is dry-run.
+
+shares: 5
+max_price: 0.979
+# Do not bid at 98c or above; fall back as the rules say.
+hard_price: 0.98
+
+home_favorite_min: 0.80
+away_favorite_min: 0.85
+# Tiny dog: still fade when football-data.org has no competition (Primeira Liga, etc.).
+dog_yes_max: 0.12
+
+over_line: 0.5
+over_fallback_line: 1.5
+under_line: 5.5
+
+# Corners are off. Two-watchlist Over 7.5 is not proposed.
+corners: false
+corner_line: 7.5
+corner_min: 0.70
+corner_max: 0.80
+
+# Skip Under 5.5 when recent matches show a high-scoring side (not a club name list).
+prolific_gf_pg: 2.2
+prolific_match_goals: 4.0
+
+# 1X2 form gate (last 5). Skip the fade if football-data.org is missing.
+fav_min_wins: 3
+dog_max_wins: 1

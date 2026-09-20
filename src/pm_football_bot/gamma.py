@@ -135,6 +135,20 @@ def _binary_market(raw: dict[str, Any], kind: str, line: float | None = None) ->
     )
 
 
+def _markets_from_event(event: dict[str, Any]) -> list[BinaryMarket]:
+    extras: list[BinaryMarket] = []
+    for raw in event.get("markets") or []:
+        kind = str(raw.get("sportsMarketType") or "other")
+        parsed = _binary_market(raw, kind, _as_float(raw.get("line")))
+        if parsed is None:
+            continue
+        title = str(raw.get("groupItemTitle") or "").strip()
+        if title and title.lower() not in parsed.question.lower():
+            parsed = replace(parsed, question=f"{title}: {parsed.question}")
+        extras.append(parsed)
+    return extras
+
+
 class GammaClient:
     def __init__(self, settings: Settings, session: requests.Session | None = None) -> None:
         self.settings = settings
@@ -189,7 +203,10 @@ class GammaClient:
         return rows
 
     def fetch_event_by_slug(self, slug: str) -> dict[str, Any] | None:
-        data = self._get("/events", {"slug": slug})
+        try:
+            data = self._get("/events", {"slug": slug})
+        except requests.RequestException:
+            return None
         if isinstance(data, list) and data:
             return data[0]
         if isinstance(data, dict) and data.get("slug"):
@@ -244,11 +261,16 @@ class GammaClient:
         more = self.fetch_event_by_slug(f"{fixture.slug}-more-markets")
         extras: list[BinaryMarket] = []
         if more:
-            for raw in more.get("markets") or []:
-                kind = str(raw.get("sportsMarketType") or "other")
-                parsed = _binary_market(raw, kind, _as_float(raw.get("line")))
-                if parsed is not None:
-                    extras.append(parsed)
+            extras.extend(_markets_from_event(more))
+        return replace(fixture, extras=tuple(extras))
+
+    def attach_harvest_books(self, fixture: Fixture) -> Fixture:
+        """O/U plus exact-score, first scorer, and corners sibling events."""
+        extras: list[BinaryMarket] = []
+        for suffix in ("-more-markets", "-exact-score", "-first-to-score", "-total-corners"):
+            event = self.fetch_event_by_slug(f"{fixture.slug}{suffix}")
+            if event:
+                extras.extend(_markets_from_event(event))
         return replace(fixture, extras=tuple(extras))
 
     def build_fixture(self, league: League, event: dict[str, Any]) -> Fixture:

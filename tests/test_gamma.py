@@ -73,3 +73,60 @@ def test_list_moneyline_events_stops_after_horizon():
     assert session.offsets == [0, 50]
     assert session.last_params["order"] == "startTime"
     assert session.last_params["ascending"] == "true"
+
+
+def test_attach_harvest_books_fetches_sibling_slugs():
+    fixture_slug = "epl-che-hul"
+
+    class _SlugSession:
+        def __init__(self) -> None:
+            self.headers: dict[str, str] = {}
+            self.slugs: list[str] = []
+
+        def get(self, url, params=None, timeout=None):
+            slug = str((params or {}).get("slug") or "")
+            self.slugs.append(slug)
+            if slug.endswith("-exact-score"):
+                return _Resp(
+                    {
+                        "slug": slug,
+                        "markets": [
+                            {
+                                "question": "Exact Score 0-0",
+                                "slug": f"{slug}-0-0",
+                                "sportsMarketType": "exact_score",
+                                "outcomes": '["Yes", "No"]',
+                                "outcomePrices": '["0.06", "0.94"]',
+                                "clobTokenIds": '["t-yes", "t-no"]',
+                                "bestBid": 0.05,
+                                "bestAsk": 0.07,
+                                "acceptingOrders": True,
+                            }
+                        ],
+                    }
+                )
+            return _Resp([])
+
+    from pm_football_bot.models import Fixture
+
+    session = _SlugSession()
+    client = GammaClient(SimpleNamespace(gamma_host="https://gamma.example"), session=session)
+    fixture = Fixture(
+        league="epl",
+        title="Chelsea FC vs. Hull City AFC",
+        slug=fixture_slug,
+        kickoff=None,
+        home=None,
+        away=None,
+        draw=None,
+        extras=(),
+    )
+    loaded = client.attach_harvest_books(fixture)
+    assert session.slugs == [
+        f"{fixture_slug}-more-markets",
+        f"{fixture_slug}-exact-score",
+        f"{fixture_slug}-first-to-score",
+        f"{fixture_slug}-total-corners",
+    ]
+    assert len(loaded.extras) == 1
+    assert "0-0" in loaded.extras[0].question
