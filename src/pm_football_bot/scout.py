@@ -25,6 +25,8 @@ COMPETITION_CODE = {
     "ligue1": "FL1",
     "ucl": "CL",
     "uel": "EL",
+    "unl": "NSL",
+    "fifwc": "WC",
     "por": "PPL",
     "ned": "DED",
     "bel": "BJL",
@@ -83,6 +85,10 @@ _ALIASES = {
     "sporting cp": "sporting",
     "sp lisbon": "sporting",
     "sp braga": "braga",
+    "korea republic": "south korea",
+    "republic of korea": "south korea",
+    "holland": "netherlands",
+    "usmnt": "usa",
 }
 _CACHE: dict[str, tuple[float, Any]] = {}
 _CACHE_TTL = 45 * 60
@@ -144,6 +150,7 @@ def fold_name(name: str) -> str:
     text = (name or "").lower().replace("ü", "u").replace("ö", "o").replace("ä", "a")
     text = text.replace("é", "e").replace("è", "e").replace("ñ", "n").replace("&", " and ")
     text = text.replace("ø", "o").replace("ç", "c").replace("ş", "s").replace("ğ", "g").replace("ı", "i")
+    text = re.sub(r"\bunited states(?: of america)?\b", "usa", text)
     text = _STRIP.sub(" ", text)
     text = _PUNCT.sub(" ", text).strip()
     return _ALIASES.get(text, text)

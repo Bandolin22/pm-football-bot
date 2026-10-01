@@ -6,6 +6,7 @@ from pm_football_bot.board import (
     from_fixture,
     involves_watch_club,
     list_upcoming,
+    matched_watch_club,
     poly_event_url,
     soonest,
     take_upcoming,
@@ -155,6 +156,19 @@ def test_watchlist_matches_nicknames_and_typos():
     assert involves_watch_club(title="Fenerbahce vs. Galatasaray", home_team="Fenerbahce", away_team="Galatasaray")
     assert involves_watch_club(title="FK Bodø/Glimt vs. Molde FK", home_team="FK Bodø/Glimt")
     assert involves_watch_club(title="Bodo/Glimt vs. Viking", home_team="Bodo/Glimt")
+    assert involves_watch_club(title="Germany vs. Serbia", home_team="Germany")
+    assert involves_watch_club(title="Greece vs. Netherlands", away_team="Netherlands")
+    assert involves_watch_club(title="Denmark vs. Portugal", away_team="Portugal")
+    assert involves_watch_club(title="Colombia vs. Paraguay", home_team="Colombia")
+    assert involves_watch_club(title="Korea Republic vs. Venezuela", home_team="Korea Republic")
+    assert involves_watch_club(title="United States vs. Mexico", home_team="United States")
+    assert involves_watch_club(title="USA vs. Japan", home_team="USA", away_team="Japan")
+    assert involves_watch_club(title="France vs. Spain", home_team="France", away_team="Spain")
+    assert involves_watch_club(title="England vs. Italy", home_team="England", away_team="Italy")
+    assert involves_watch_club(title="Argentina vs. Brazil", home_team="Argentina", away_team="Brazil")
+    assert involves_watch_club(title="Morocco vs. Senegal", home_team="Morocco", away_team="Senegal")
+    assert involves_watch_club(title="Belgium vs. Croatia", home_team="Belgium", away_team="Croatia")
+    assert involves_watch_club(title="Uruguay vs. Mexico", home_team="Uruguay")
 
 
 def test_watchlist_does_not_cross_match_other_clubs():
@@ -201,8 +215,35 @@ def test_watchlist_does_not_cross_match_other_clubs():
     )
     assert not involves_watch_club(title="South Liverpool FC vs. Marine", home_team="South Liverpool FC")
     assert not involves_watch_club(title="Ossett United FC vs. Hyde", home_team="Ossett United FC")
+    assert not involves_watch_club(
+        title="New England Revolution vs. Inter Miami CF",
+        home_team="New England Revolution",
+        away_team="Inter Miami CF",
+    )
+    assert not involves_watch_club(
+        title="US Virgin Islands vs. Saint-Martin",
+        home_team="US Virgin Islands",
+        away_team="Saint-Martin",
+    )
+    assert not involves_watch_club(title="Romania vs. Bosnia and Herzegovina", home_team="Romania")
+    assert not involves_watch_club(title="North Korea vs. Guam", home_team="North Korea")
+    assert not involves_watch_club(title="Paraguay vs. Venezuela", home_team="Paraguay", away_team="Venezuela")
+    assert not involves_watch_club(title="Greece vs. Serbia", home_team="Greece", away_team="Serbia")
     assert from_fixture(_fixture(title="Getafe CF vs. Valencia CF", slug="lal-get-val"), "LaLiga").watch is False
     assert from_fixture(
         _fixture(title="Bromsgrove Sporting FC vs. Leek Town FC", slug="efa-bro-lee"),
         "FA Cup",
     ).watch is False
+
+
+def test_nations_do_not_steal_club_matches():
+    assert matched_watch_club("FC Porto") == "FC Porto"
+    assert matched_watch_club("Portugal") == "Portugal"
+    assert matched_watch_club("AS Roma") == "AS Roma"
+    assert matched_watch_club("Romania") is None
+    assert matched_watch_club("FC Internazionale Milano") == "Inter milan"
+    assert matched_watch_club("Italy") == "Italy"
+    assert matched_watch_club("United States") == "USA"
+    assert matched_watch_club("Korea Republic") == "South Korea"
+    assert matched_watch_club("US Virgin Islands") is None
+    assert matched_watch_club("New England Revolution") is None

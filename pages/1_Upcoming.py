@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 import streamlit as st
 from html import escape
 
-from pm_football_bot.board import WATCH_QUERIES, list_upcoming
+from pm_football_bot.board import WATCH_CLUBS, WATCH_NATIONS, list_upcoming
 from pm_football_bot.config import load_settings
 from pm_football_bot.gamma import GammaClient
 
@@ -40,15 +40,16 @@ st.markdown(
 
 st.title("Upcoming board")
 st.caption(
-    "Next Polymarket 1X2 markets for watchlist clubs across domestic leagues, "
-    "EFL / FA Cup, European cups, and national cups — not only EPL and LaLiga. "
-    "Home / Draw / Away are live Yes mids. Gold rows are your watchlist clubs. "
-    "Telegram pings those clubs ~3 hours before kickoff via GitHub Actions "
+    "Next Polymarket 1X2 markets for watchlist clubs and national teams across domestic leagues, "
+    "cups, UEFA Nations League, FIFA friendlies, and other internationals — not only EPL and LaLiga. "
+    "Home / Draw / Away are live Yes mids. Gold rows are your watchlist sides. "
+    "Telegram pings those sides ~3 hours before kickoff via GitHub Actions "
     "(tokens live in GitHub secrets, not in a committed .env). "
-    "Cups are listed here even though harvest KEEP stays on the five league tables. "
+    "Cups and internationals are listed here even though harvest KEEP stays on the five league tables. "
     "This page never places orders."
 )
-st.caption("Watchlist: " + " · ".join(WATCH_QUERIES))
+st.caption("Clubs: " + " · ".join(WATCH_CLUBS))
+st.caption("Nations: " + " · ".join(WATCH_NATIONS))
 
 settings = load_settings()
 league_names = {row.key: row.name for row in settings.leagues}

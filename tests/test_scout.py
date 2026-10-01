@@ -34,6 +34,11 @@ def test_folds_club_suffixes():
     assert fold_name("Paris SG") == "paris saint germain"
     assert fold_name("Sporting CP") == "sporting"
     assert fold_name("Sp Lisbon") == "sporting"
+    assert fold_name("United States") == "usa"
+    assert fold_name("USA") == "usa"
+    assert fold_name("US Lecce") == "lecce"
+    assert fold_name("Korea Republic") == "south korea"
+    assert fold_name("Holland") == "netherlands"
 
 
 def test_matches_football_data_team_rows():

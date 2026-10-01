@@ -460,7 +460,7 @@ with st.expander("How to read this", expanded=False):
         tickets are skipped). Live orders use the deposit wallet (not the EOA).
         Save the PK once; Edit / Delete to change it.
         1X2 fades use football-data.co.uk form (API is fallback).
-        Two watchlist clubs skip dog No and Under 5.5. Corners are not bought.
+        Two watchlist sides skip dog No and Under 5.5. Corners are not bought.
         """
     )
 

@@ -195,3 +195,27 @@ leagues:
     sport: ecs
     series_id: "12358"
     primary_tag_id: 105732
+  unl:
+    enabled: false
+    name: UEFA Nations League
+    sport: unl
+    series_id: "11446"
+    primary_tag_id: 100816
+  fif:
+    enabled: false
+    name: FIFA Friendlies
+    sport: fif
+    series_id: "10238"
+    primary_tag_id: 102539
+  afcq:
+    enabled: false
+    name: AFCON Qualifiers
+    sport: afcq
+    series_id: "12854"
+    primary_tag_id: 106276
+  conl:
+    enabled: false
+    name: CONCACAF Nations League
+    sport: conl
+    series_id: "10673"
+    primary_tag_id: 102867

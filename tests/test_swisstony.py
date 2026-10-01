@@ -37,6 +37,10 @@ def test_parent_slug_strips_side_books():
     assert league_of("sea-fro-juv-2026-08-23") == "seriea"
     assert league_of("bun-bay-stu-2026-08-28") == "bundesliga"
     assert league_of("por-spo-nac-2026-09-04") == "por"
+    assert league_of("unl-ger-ser-2026-10-01") == "unl"
+    assert league_of("fif-col-par-2026-10-02") == "fif"
+    assert league_of("afcq-gui-ken-2026-10-01") == "afcq"
+    assert league_of("conl-dom-hai-2026-10-02") == "conl"
     assert league_of("bra-fla-pal-2026-09-13") == "bra"
     assert league_of("lib-fla-riv-2026-09-17") == "lib"
     assert league_of("bel1-bru-cer-2026-08-23") == "bel"
@@ -51,7 +55,7 @@ def test_five_euro_leagues_enabled():
     enabled = {lg.key: lg for lg in load_settings().leagues if lg.enabled}
     assert set(enabled) == {"epl", "laliga", "ligue1", "seriea", "bundesliga"}
     board = {lg.key for lg in load_settings().leagues}
-    assert {"ucl", "uel", "efl", "elc", "efa", "dfb", "itc", "cdr", "por", "bra", "brco", "lib", "bel", "ned", "sco", "tur", "nor"}.issubset(board)
+    assert {"ucl", "uel", "efl", "elc", "efa", "dfb", "itc", "cdr", "por", "bra", "brco", "lib", "bel", "ned", "sco", "tur", "nor", "unl", "fif", "afcq", "conl"}.issubset(board)
     by_key = {lg.key: lg for lg in load_settings().leagues}
     assert by_key["efl"].series_id == "10329"
     assert by_key["efa"].series_id == "10314"
@@ -67,6 +71,12 @@ def test_five_euro_leagues_enabled():
     assert by_key["sco"].series_id == "10674"
     assert by_key["tur"].series_id == "10292"
     assert by_key["nor"].series_id == "10362"
+    assert by_key["unl"].series_id == "11446"
+    assert by_key["unl"].enabled is False
+    assert by_key["fif"].series_id == "10238"
+    assert by_key["fif"].enabled is False
+    assert by_key["afcq"].series_id == "12854"
+    assert by_key["conl"].series_id == "10673"
     assert enabled["ligue1"].series_id == "10195"
     assert enabled["seriea"].series_id == "10203"
     assert enabled["bundesliga"].series_id == "10194"

@@ -15,7 +15,7 @@ PROFILE = f"https://polymarket.com/@swisstony"
 
 _PARENT = re.compile(
     r"^((?:epl|lal|ucl|fl1|sea|bun|por|bra|brco|lib|sud|bel1|ere|scop|tur|nor|efl|elc|efa|uel|col|cdr|dfb|itc|cde|"
-    r"ssc|isc|gsc|frtc|usc|cwc|ecs)-[a-z0-9]+-[a-z0-9]+-\d{4}-\d{2}-\d{2})",
+    r"ssc|isc|gsc|frtc|usc|cwc|ecs|unl|fif|afcq|conl|fifwc)-[a-z0-9]+-[a-z0-9]+-\d{4}-\d{2}-\d{2})",
     re.IGNORECASE,
 )
 
@@ -53,6 +53,11 @@ _SLUG_LEAGUE = {
     "usc": "usc",
     "cwc": "cwc",
     "ecs": "ecs",
+    "unl": "unl",
+    "fif": "fif",
+    "afcq": "afcq",
+    "conl": "conl",
+    "fifwc": "fifwc",
 }
 
 

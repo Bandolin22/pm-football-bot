@@ -64,7 +64,7 @@ def _announce() -> None:
         creds[1],
         "Watchlist alerter is online.\n"
         f"I will Telegram you ~{hours} hours before kickoff for {clubs}, "
-        "in every listed league and cup, with live Polymarket 1X2.",
+        "in every listed league, cup, and national-team series, with live Polymarket 1X2.",
     )
 
 

@@ -45,10 +45,14 @@ LEAGUE_ORDER = (
     "usc",
     "cwc",
     "ecs",
+    "unl",
+    "fif",
+    "afcq",
+    "conl",
 )
 
 # User watchlist, including the nicknames / spellings they typed.
-WATCH_QUERIES = (
+WATCH_CLUBS = (
     "Real Madrid",
     "Barca",
     "Atletic Madrid",
@@ -82,6 +86,31 @@ WATCH_QUERIES = (
     "Fenerbahce",
     "Bodo Glimt",
 )
+
+# FIFA-top / recent-tournament sides for international windows.
+WATCH_NATIONS = (
+    "France",
+    "Spain",
+    "England",
+    "Portugal",
+    "Germany",
+    "Netherlands",
+    "Italy",
+    "Belgium",
+    "Croatia",
+    "Argentina",
+    "Brazil",
+    "Uruguay",
+    "Colombia",
+    "USA",
+    "Mexico",
+    "Japan",
+    "South Korea",
+    "Morocco",
+    "Senegal",
+)
+
+WATCH_QUERIES = WATCH_CLUBS + WATCH_NATIONS
 
 _WATCH_ALIASES = {
     "barca": "barcelona",
@@ -138,16 +167,27 @@ _WATCH_ALIASES = {
     "fenerbahce sk": "fenerbahce",
     "fk bodo glimt": "bodo glimt",
     "bodo glimt fotball": "bodo glimt",
+    "holland": "netherlands",
+    "the netherlands": "netherlands",
+    "korea republic": "south korea",
+    "republic of korea": "south korea",
+    "usa": "usa",
+    "usmnt": "usa",
 }
 
 # Names that contain a watch token but are a different club.
 _WATCH_NEGATIVES = {
     "barcelona": ("espanyol",),
     "sporting": ("kansas", "kc", "gijon", "gij", "braga", "bromsgrove"),
-    "porto": ("alegre",),
+    "porto": ("alegre", "portugal"),
+    "portugal": ("porto",),
+    "roma": ("romania",),
     "brugge": ("cercle",),
     "liverpool": ("south",),
     "manchester united": ("ossett",),
+    "england": ("new",),
+    "usa": ("virgin",),
+    "south korea": ("north",),
 }
 
 # Extra tokens allowed around a watch name (FC, CP, KV, …). Place names are not allowed.
@@ -220,6 +260,25 @@ WATCH_LABELS = {
     "Galatasaray": "Galatasaray",
     "Fenerbahce": "Fenerbahçe",
     "Bodo Glimt": "Bodø/Glimt",
+    "France": "France",
+    "Spain": "Spain",
+    "England": "England",
+    "Portugal": "Portugal",
+    "Germany": "Germany",
+    "Netherlands": "Netherlands",
+    "Italy": "Italy",
+    "Belgium": "Belgium",
+    "Croatia": "Croatia",
+    "Argentina": "Argentina",
+    "Brazil": "Brazil",
+    "Uruguay": "Uruguay",
+    "Colombia": "Colombia",
+    "USA": "USA",
+    "Mexico": "Mexico",
+    "Japan": "Japan",
+    "South Korea": "South Korea",
+    "Morocco": "Morocco",
+    "Senegal": "Senegal",
 }
 
 
