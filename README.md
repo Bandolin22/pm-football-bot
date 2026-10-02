@@ -70,6 +70,8 @@ python -m streamlit run app.py
 
 Click **Scan live boards**. Matches are grouped. **KEEP** is the three-ticket harvest on the YAML mismatch (dog ≤ 12¢, favorite ≥ 70¢). **SKIP** is the wrong market. **BORDERLINE** only appears if a ticket slipped outside that cutoff.
 
+Open the **Watchlist rates** tab for a rolling one-year home / away / clash board (0–0, Over 5.5, Over 3–3). Refresh re-downloads football-data.co.uk and the public internationals file.
+
 Open **Watchlist keeper** in the sidebar: **Scan**, then **Send live orders** (tick live GTC bids). **Auto-run** repeats scan/buy while that tab stays open.
 
 Open the **Compare with swisstony** tab to see his bought shares and average price on the same match. **SAME LINE** means he holds the ticket you would buy. His extra lots (team Under 2.5, exact scores) stay on the right so you can see what not to copy.
@@ -114,6 +116,15 @@ FOOTBALL_DATA_TOKEN = "your-football-data-token"
 ```
 
 Then reboot the app. Locally, keep using `.env` on this PC.
+
+**Live orders cannot run on Streamlit Cloud.** That host’s IP is in the United States, and Polymarket rejects new CLOB orders from blocked regions. Scan and the shopping list still work online. Place live GTC on this PC:
+
+```powershell
+python -m streamlit run app.py
+# Watchlist keeper → Scan → Send live orders
+```
+
+or `python -m pm_football_bot.keeper --live`. Korea is close-only on the Polymarket website, but the CLOB API is allowed. If you later want 24/7 unattended buys, host the same Docker app on a VPS whose exit IP is allowed (Polymarket’s docs point at AWS `eu-west-1`). Do not put a proxy in front of Streamlit Cloud to look non-US.
 
 ## 24/7 Telegram watchlist (cloud)
 

@@ -18,7 +18,7 @@ dependencies = [
 [project.optional-dependencies]
 live = ["py-clob-client-v2>=1.1"]
 dev = ["pytest>=8.0"]
-ui = ["streamlit>=1.40"]
+ui = ["streamlit>=1.40", "altair>=5.4"]
 explain = ["anthropic>=0.40"]
 
 [project.scripts]
