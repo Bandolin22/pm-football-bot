@@ -1,8 +1,18 @@
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, timezone
 
-from pm_football_bot.watch_rates import RateBucket, load_watch_rates, score_flags, season_folders, watch_of
+from pm_football_bot.watch_rates import (
+    RateBucket,
+    load_watch_rates,
+    overlapping_spl_seasons,
+    parse_spl_results_html,
+    score_flags,
+    season_folders,
+    spl_wiki_url,
+    watch_of,
+)
 
 
 def test_score_flags_match_keeper_tails():
@@ -70,3 +80,67 @@ def test_rate_bucket_percent():
     assert bucket.zero_rate == 50.0
     assert bucket.other_rate == 50.0
     assert bucket.over55_rate == 0.0
+
+
+SPL_GRID = """
+<table class="wikitable">
+<tr><th>Home \\ Away</th><th>AHL</th><th>HIL</th><th>NSR</th><th>QAD</th><th>ITT</th><th>ETT</th><th>FAT</th><th>FAY</th></tr>
+<tr><th>Al-Ahli</th><td></td><td>0-0</td><td>1-0</td><td>2-1</td><td>3-1</td><td>4-0</td><td>1-1</td><td>2-2</td></tr>
+<tr><th>Al-Hilal</th><td>4-0</td><td></td><td>3-3</td><td>2-0</td><td>1-0</td><td>5-1</td><td>2-1</td><td>0-1</td></tr>
+<tr><th>Al-Nassr</th><td>2-1</td><td>1-5</td><td></td><td>3-1</td><td>2-0</td><td>4-2</td><td>3-0</td><td>1-0</td></tr>
+<tr><th>Al-Qadsiah</th><td>1-1</td><td>0-2</td><td>1-3</td><td></td><td>0-1</td><td>3-3</td><td>2-0</td><td>1-0</td></tr>
+<tr><th>Al-Ittihad</th><td>2-2</td><td>2-3</td><td>1-2</td><td>1-0</td><td></td><td>2-1</td><td>0-0</td><td>3-2</td></tr>
+<tr><th>Al-Ettifaq</th><td>0-1</td><td>1-2</td><td>0-3</td><td>1-1</td><td>2-2</td><td></td><td>1-0</td><td>0-0</td></tr>
+<tr><th>Al-Fateh</th><td>1-2</td><td>0-4</td><td>1-1</td><td>0-2</td><td>1-3</td><td>2-2</td><td></td><td>1-1</td></tr>
+<tr><th>Al-Fayha</th><td>0-2</td><td>1-1</td><td>0-1</td><td>1-2</td><td>2-2</td><td>1-1</td><td>0-0</td><td></td></tr>
+</table>
+"""
+
+
+def test_overlapping_spl_seasons_for_rolling_year():
+    seasons = overlapping_spl_seasons(date(2025, 10, 13), date(2026, 10, 13))
+    assert 2025 in seasons
+    assert 2026 in seasons
+    assert 2024 not in seasons
+
+
+def test_parse_spl_results_html_reads_watchlist_grid():
+    games = parse_spl_results_html(SPL_GRID)
+    assert ("Al-Ahli", "Al-Hilal", 0, 0) in games
+    assert ("Al-Hilal", "Al-Ahli", 4, 0) in games
+    assert ("Al-Nassr", "Al-Hilal", 1, 5) in games
+    assert len(games) == 56
+
+
+def test_saudi_clubs_map_from_wikipedia_names():
+    assert watch_of("Al-Hilal") == "Al Hilal"
+    assert watch_of("Al-Nassr") == "Al Nassr"
+    assert watch_of("Al-Ahli") == "Al Ahli"
+    assert watch_of("Al-Qadsiah") == "Al Qadisiyah"
+    assert watch_of("Al-Ittihad") == "Al Ittihad"
+    assert watch_of("Al-Ettifaq") is None
+
+
+def test_load_watch_rates_includes_saudi_all_matches():
+    payload = '{"parse": {"text": {"*": %s}}}' % json.dumps(SPL_GRID)
+
+    def fetch(url: str) -> str | None:
+        if "Saudi_Pro_League" in url and "2025" in url:
+            return payload
+        return None
+
+    report = load_watch_rates(
+        days=365,
+        now=datetime(2026, 10, 13, tzinfo=timezone.utc),
+        fetch_fn=fetch,
+    )
+    hilal = next(row for row in report.teams if row.query == "Al Hilal")
+    nassr = next(row for row in report.teams if row.query == "Al Nassr")
+    ahli = next(row for row in report.teams if row.query == "Al Ahli")
+    assert hilal.home.combined(hilal.away).matches == 14
+    assert ahli.home.zero == 1
+    assert hilal.home.other == 2
+    assert hilal.home.over55 == 2
+    assert nassr.away.over55 == 1
+    assert spl_wiki_url(2025).endswith("format=json")
+    assert any("Saudi Pro League 2025-26" in item for item in report.sources)

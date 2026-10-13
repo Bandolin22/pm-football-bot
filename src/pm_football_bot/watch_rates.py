@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import csv
+import json
+import re
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from datetime import date, datetime, timedelta, timezone
+from html.parser import HTMLParser
 from io import StringIO
 from typing import Callable
+from urllib.parse import quote
 
 import requests
 
@@ -48,6 +52,10 @@ EXTRA_FILES = (
     (f"{NEW_HOST}/NOR.csv", "Eliteserien", ("Home", "Away", "HG", "AG", "Date")),
 )
 
+WIKI_API = "https://en.wikipedia.org/w/api.php"
+WIKI_UA = "pm-football-bot/0.1 (https://github.com/Bandolin22/pm-football-bot; watchlist-rates)"
+_SCORE_CELL = re.compile(r"(\d+)\s*[–—−-]\s*(\d+)")
+
 FetchFn = Callable[[str], str | None]
 
 
@@ -58,6 +66,37 @@ def season_folders(start: date, end: date) -> tuple[str, ...]:
         years.add(day.year if day.month >= 7 else day.year - 1)
         years.add((day.year if day.month >= 7 else day.year - 1) - 1)
     return tuple(f"{year % 100:02d}{(year + 1) % 100:02d}" for year in sorted(years))
+
+
+def overlapping_spl_seasons(start: date, end: date) -> tuple[int, ...]:
+    """Saudi Pro League season-start years whose Aug–May window overlaps [start, end]."""
+    years: set[int] = set()
+    for day in (start, end):
+        years.add(day.year if day.month >= 7 else day.year - 1)
+        years.add((day.year if day.month >= 7 else day.year - 1) - 1)
+    kept: list[int] = []
+    for year in sorted(years):
+        season_start = date(year, 8, 1)
+        season_end = date(year + 1, 5, 31)
+        if season_end < start or season_start > end:
+            continue
+        kept.append(year)
+    return tuple(kept)
+
+
+def spl_wiki_url(year: int) -> str:
+    page = f"{year}–{str(year + 1)[2:]}_Saudi_Pro_League"
+    return (
+        f"{WIKI_API}?action=parse&page={quote(page, safe='_')}&prop=text&format=json"
+    )
+
+
+def spl_overlap_day(year: int, start: date, end: date) -> date | None:
+    lo = max(date(year, 8, 1), start)
+    hi = min(date(year + 1, 5, 31), end)
+    if lo > hi:
+        return None
+    return hi
 
 
 def parse_day(raw: str) -> date | None:
@@ -113,6 +152,14 @@ class RateBucket:
     def other_rate(self) -> float:
         return self.rate(self.other)
 
+    def combined(self, other: RateBucket) -> RateBucket:
+        out = RateBucket()
+        out.matches = self.matches + other.matches
+        out.zero = self.zero + other.zero
+        out.over55 = self.over55 + other.over55
+        out.other = self.other + other.other
+        return out
+
     def as_dict(self) -> dict[str, int | float]:
         return {
             "matches": self.matches,
@@ -142,6 +189,7 @@ class TeamSplit:
             "kind": self.kind,
             "home": self.home.as_dict(),
             "away": self.away.as_dict(),
+            "all": self.home.combined(self.away).as_dict(),
             "clash": self.clash.as_dict(),
             "rest": self.rest.as_dict(),
         }
@@ -209,6 +257,140 @@ def default_fetch(url: str, timeout: int = 20) -> str | None:
     return text
 
 
+def wiki_fetch(url: str, timeout: int = 25) -> str | None:
+    """Wikipedia JSON parse API. Needs an identifying UA or it 403s."""
+    try:
+        response = requests.get(url, timeout=timeout, headers={"User-Agent": WIKI_UA})
+    except requests.RequestException:
+        return None
+    if response.status_code != 200:
+        return None
+    return response.content.decode("utf-8-sig", errors="replace")
+
+
+class _HtmlTables(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.tables: list[list[list[str]]] = []
+        self._table: list[list[str]] | None = None
+        self._row: list[str] | None = None
+        self._cell: list[str] | None = None
+        self._skip = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "table":
+            self._table = []
+        elif tag == "tr" and self._table is not None:
+            self._row = []
+        elif tag in {"td", "th"} and self._row is not None:
+            self._cell = []
+        elif tag in {"script", "style"}:
+            self._skip += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in {"script", "style"} and self._skip:
+            self._skip -= 1
+        elif tag in {"td", "th"} and self._cell is not None and self._row is not None:
+            self._row.append(re.sub(r"\s+", " ", "".join(self._cell)).strip())
+            self._cell = None
+        elif tag == "tr" and self._row is not None and self._table is not None:
+            if any(self._row):
+                self._table.append(self._row)
+            self._row = None
+        elif tag == "table" and self._table is not None:
+            if self._table:
+                self.tables.append(self._table)
+            self._table = None
+
+    def handle_data(self, data: str) -> None:
+        if self._skip or self._cell is None:
+            return
+        self._cell.append(data)
+
+
+def parse_spl_score(cell: str) -> tuple[int, int] | None:
+    match = _SCORE_CELL.search(cell or "")
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def parse_spl_results_html(html: str) -> list[tuple[str, str, int, int]]:
+    """Home/away score grid from a Wikipedia Saudi Pro League page."""
+    parser = _HtmlTables()
+    parser.feed(html)
+    games: list[tuple[str, str, int, int]] = []
+    for table in parser.tables:
+        if not _is_spl_results_grid(table):
+            continue
+        teams = [row[0] for row in table[1:] if row and row[0]]
+        if len(teams) != len(table[0]) - 1:
+            continue
+        for i, home in enumerate(teams):
+            cells = table[i + 1][1:]
+            for j, away in enumerate(teams):
+                if i == j or j >= len(cells):
+                    continue
+                score = parse_spl_score(cells[j])
+                if score is None:
+                    continue
+                games.append((home, away, score[0], score[1]))
+        if games:
+            return games
+    return games
+
+
+def _is_spl_results_grid(table: list[list[str]]) -> bool:
+    if len(table) < 8 or not table[0]:
+        return False
+    head = " ".join(table[0][:3]).lower()
+    if "home" not in head or "away" not in head:
+        return False
+    return len(table) - 1 == len(table[0]) - 1
+
+
+def _wiki_html(text: str) -> str:
+    stripped = (text or "").lstrip()
+    if not stripped.startswith("{"):
+        return text
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return text
+    block = payload.get("parse") or {}
+    inner = block.get("text")
+    if isinstance(inner, dict):
+        return str(inner.get("*") or "")
+    if isinstance(inner, str):
+        return inner
+    return ""
+
+
+def _put_game(
+    games: dict[tuple, dict],
+    day: date,
+    home: str,
+    away: str,
+    hg: int,
+    ag: int,
+) -> bool:
+    hq = watch_of(home)
+    aq = watch_of(away)
+    if not hq and not aq:
+        return False
+    key = (day.isoformat(), home.lower(), away.lower(), hg, ag)
+    games[key] = {
+        "date": day.isoformat(),
+        "home": home,
+        "away": away,
+        "hg": hg,
+        "ag": ag,
+        "home_q": hq,
+        "away_q": aq,
+    }
+    return True
+
+
 def _ingest(
     text: str,
     cols: tuple[str, str, str, str, str],
@@ -229,21 +411,21 @@ def _ingest(
             ag = int(float(row.get(ag_k)))
         except (TypeError, ValueError):
             continue
-        hq = watch_of(home)
-        aq = watch_of(away)
-        if not hq and not aq:
-            continue
-        key = (day.isoformat(), home.lower(), away.lower(), hg, ag)
-        games[key] = {
-            "date": day.isoformat(),
-            "home": home,
-            "away": away,
-            "hg": hg,
-            "ag": ag,
-            "home_q": hq,
-            "away_q": aq,
-        }
-        kept += 1
+        if _put_game(games, day, home, away, hg, ag):
+            kept += 1
+    return kept
+
+
+def _ingest_spl_wiki(
+    text: str,
+    day: date,
+    games: dict[tuple, dict],
+) -> int:
+    html = _wiki_html(text)
+    kept = 0
+    for home, away, hg, ag in parse_spl_results_html(html):
+        if _put_game(games, day, home, away, hg, ag):
+            kept += 1
     return kept
 
 
@@ -291,6 +473,19 @@ def load_watch_rates(
             errors.append(name)
             continue
         n = _ingest(text, cols, start, end, games)
+        sources.append(f"{name}: {n}")
+
+    wiki_getter = fetch_fn or wiki_fetch
+    for year in overlapping_spl_seasons(start, end):
+        day = spl_overlap_day(year, start, end)
+        name = f"Saudi Pro League {year}-{str(year + 1)[2:]}"
+        if day is None:
+            continue
+        text = wiki_getter(spl_wiki_url(year))
+        if not text:
+            errors.append(name)
+            continue
+        n = _ingest_spl_wiki(text, day, games)
         sources.append(f"{name}: {n}")
 
     teams = {

@@ -29,9 +29,10 @@ st.title("Watchlist rates · home, away, and watchlist clashes")
 st.caption(
     "Rolling ~one year of completed games up to today. 0–0, Over 5.5 (6+ goals), "
     "and Over 3–3 (a side scored 4+, so 4–0 counts here). Clubs are domestic league "
-    "only. Nations use the public senior men’s results file. Clash = both sides on "
-    "the watchlist. Refresh re-downloads; otherwise this page caches for 45 minutes. "
-    "This page never places orders."
+    "only. Saudi Pro League is Wikipedia results grids for seasons that overlap this "
+    "window (football-data.co.uk has no SPL file). Nations use the public senior "
+    "men’s results file. Clash = both sides on the watchlist. Refresh re-downloads; "
+    "otherwise this page caches for 45 minutes. This page never places orders."
 )
 
 days = st.slider("Lookback (days)", min_value=180, max_value=400, value=365, step=5)
@@ -147,6 +148,14 @@ st.altair_chart(
     .properties(height=240),
     use_container_width=True,
 )
+
+st.subheader("Clubs · all league games")
+st.caption(
+    "Home and away combined. This is every domestic-league match that club played "
+    "in the window, including the five Saudi Pro League sides."
+)
+st.altair_chart(_grouped_chart(clubs, "all", 920), use_container_width=True)
+st.dataframe(_rate_table(clubs, "all"), hide_index=True, use_container_width=True)
 
 st.subheader("Clubs at home")
 st.caption("Percent of that club’s home league games. Same team order as the away chart (sorted by average Over 5.5).")
