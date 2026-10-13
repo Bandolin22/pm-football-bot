@@ -156,6 +156,11 @@ def test_watchlist_matches_nicknames_and_typos():
     assert involves_watch_club(title="Fenerbahce vs. Galatasaray", home_team="Fenerbahce", away_team="Galatasaray")
     assert involves_watch_club(title="FK Bodø/Glimt vs. Molde FK", home_team="FK Bodø/Glimt")
     assert involves_watch_club(title="Bodo/Glimt vs. Viking", home_team="Bodo/Glimt")
+    assert involves_watch_club(title="Al Hilal Saudi Club vs. Al Nassr Saudi Club", home_team="Al Hilal Saudi Club", away_team="Al Nassr Saudi Club")
+    assert involves_watch_club(title="Al Ahli Saudi Club vs. Al Ittihad Saudi Club", home_team="Al Ahli Saudi Club", away_team="Al Ittihad Saudi Club")
+    assert involves_watch_club(title="Al Qadisiyah Saudi Club vs. Abha Saudi Club", home_team="Al Qadisiyah Saudi Club")
+    assert involves_watch_club(title="Al Qadsiah vs. Al-Fateh", home_team="Al Qadsiah")
+    assert involves_watch_club(title="Al-Hilal vs. Al-Ettifaq", home_team="Al-Hilal")
     assert involves_watch_club(title="Germany vs. Serbia", home_team="Germany")
     assert involves_watch_club(title="Greece vs. Netherlands", away_team="Netherlands")
     assert involves_watch_club(title="Denmark vs. Portugal", away_team="Portugal")
@@ -198,6 +203,12 @@ def test_watchlist_does_not_cross_match_other_clubs():
     assert not involves_watch_club(title="Rangers FC vs. Hearts", home_team="Rangers FC")
     assert not involves_watch_club(title="Beşiktaş vs. Trabzonspor", home_team="Beşiktaş")
     assert not involves_watch_club(title="Molde FK vs. Viking FK", home_team="Molde FK")
+    assert not involves_watch_club(title="Al Ahly SC vs. Zamalek SC", home_team="Al Ahly SC")
+    assert not involves_watch_club(title="Al-Nasr Dubai vs. Shabab Al Ahli", home_team="Al-Nasr Dubai", away_team="Shabab Al Ahli")
+    assert not involves_watch_club(title="Al-Hilal Omdurman vs. Al-Merrikh", home_team="Al-Hilal Omdurman")
+    assert not involves_watch_club(title="Al Ittihad Alexandria vs. Pyramids FC", home_team="Al Ittihad Alexandria")
+    assert not involves_watch_club(title="Al-Qadsia vs. Kuwait SC", home_team="Al-Qadsia")
+    assert not involves_watch_club(title="Al Riyadh Saudi Club vs. Al Shabab Saudi Club", home_team="Al Riyadh Saudi Club", away_team="Al Shabab Saudi Club")
     assert not involves_watch_club(
         title="Bromsgrove Sporting FC vs. Leek Town FC",
         home_team="Bromsgrove Sporting FC",

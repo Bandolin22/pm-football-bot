@@ -92,6 +92,12 @@ leagues:
     sport: nor
     series_id: "10362"
     primary_tag_id: 102651
+  spl:
+    enabled: false
+    name: Saudi Pro League
+    sport: spl
+    series_id: "10361"
+    primary_tag_id: 102650
   ucl:
     enabled: false
     name: UEFA Champions League

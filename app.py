@@ -119,6 +119,7 @@ LEAGUE_LABEL = {
     "sco": "Scottish Premiership",
     "tur": "Süper Lig",
     "nor": "Eliteserien",
+    "spl": "Saudi Pro League",
 }
 
 

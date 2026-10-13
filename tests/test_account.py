@@ -123,6 +123,17 @@ def test_watch_club_aliases():
     assert watch_display_name("PSV") == "PSV"
     assert watch_display_name("Fenerbahce") == "Fenerbahçe"
     assert watch_display_name("Bodo Glimt") == "Bodø/Glimt"
+    assert matched_watch_club("Al Hilal Saudi Club") == "Al Hilal"
+    assert matched_watch_club("Al Nassr Saudi Club") == "Al Nassr"
+    assert matched_watch_club("Al Ahli Saudi Club") == "Al Ahli"
+    assert matched_watch_club("Al Qadisiyah Saudi Club") == "Al Qadisiyah"
+    assert matched_watch_club("Al Qadsiah") == "Al Qadisiyah"
+    assert matched_watch_club("Al Ittihad Saudi Club") == "Al Ittihad"
+    assert matched_watch_club("Al Ahly SC") is None
+    assert matched_watch_club("Al-Nasr Dubai") is None
+    assert matched_watch_club("Al Riyadh Saudi Club") is None
+    assert watch_display_name("Al Hilal") == "Al-Hilal"
+    assert watch_display_name("Al Qadisiyah") == "Al-Qadsiah"
 
 
 def test_soccer_filter_skips_crypto():

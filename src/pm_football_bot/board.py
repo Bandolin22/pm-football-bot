@@ -28,6 +28,7 @@ LEAGUE_ORDER = (
     "sco",
     "tur",
     "nor",
+    "spl",
     "ucl",
     "uel",
     "col",
@@ -85,6 +86,11 @@ WATCH_CLUBS = (
     "Galatasaray",
     "Fenerbahce",
     "Bodo Glimt",
+    "Al Hilal",
+    "Al Nassr",
+    "Al Ahli",
+    "Al Qadisiyah",
+    "Al Ittihad",
 )
 
 # FIFA-top / recent-tournament sides for international windows.
@@ -167,6 +173,15 @@ _WATCH_ALIASES = {
     "fenerbahce sk": "fenerbahce",
     "fk bodo glimt": "bodo glimt",
     "bodo glimt fotball": "bodo glimt",
+    "al qadsiah": "al qadisiyah",
+    "al qadisiya": "al qadisiyah",
+    "al hilal saudi": "al hilal",
+    "al nassr saudi": "al nassr",
+    "al ahli saudi": "al ahli",
+    "al qadisiyah saudi": "al qadisiyah",
+    "al ittihad saudi": "al ittihad",
+    "al ahli jeddah": "al ahli",
+    "al ittihad jeddah": "al ittihad",
     "holland": "netherlands",
     "the netherlands": "netherlands",
     "korea republic": "south korea",
@@ -188,6 +203,11 @@ _WATCH_NEGATIVES = {
     "england": ("new",),
     "usa": ("virgin",),
     "south korea": ("north",),
+    "al hilal": ("omdurman", "benghazi", "sudan", "libya", "sahil"),
+    "al nassr": ("nasr", "dubai", "oman"),
+    "al ahli": ("ahly", "cairo", "egypt", "dubai", "doha", "qatar", "bahrain", "tripoli", "yemen"),
+    "al ittihad": ("alexandria", "kalba", "tripoli", "nablus", "egypt", "libya"),
+    "al qadisiyah": ("qadsia", "kuwait"),
 }
 
 # Extra tokens allowed around a watch name (FC, CP, KV, …). Place names are not allowed.
@@ -224,6 +244,10 @@ _WATCH_NOISE = frozenset(
         "sociedade",
         "esportiva",
         "fotball",
+        "saudi",
+        "jeddah",
+        "riyadh",
+        "sfc",
     }
 )
 
@@ -260,6 +284,11 @@ WATCH_LABELS = {
     "Galatasaray": "Galatasaray",
     "Fenerbahce": "Fenerbahçe",
     "Bodo Glimt": "Bodø/Glimt",
+    "Al Hilal": "Al-Hilal",
+    "Al Nassr": "Al-Nassr",
+    "Al Ahli": "Al-Ahli",
+    "Al Qadisiyah": "Al-Qadsiah",
+    "Al Ittihad": "Al-Ittihad",
     "France": "France",
     "Spain": "Spain",
     "England": "England",
